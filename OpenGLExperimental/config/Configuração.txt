@@ -1,0 +1,30 @@
+Visual Studio Configuration:
+
+Tools>Options>Debugging>Symbols --> select checkbox "Microsoft Symbol Servers"
+
+
+Project Configuration:
+
+$(SolutionDir)bin\$(Platform)\$(Configuration)\
+$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\
+
+
+OpenGL configuration:
+
+Include Directories:
+$(SolutionDir)\Dependencies\glfw\include
+$(SolutionDir)\Dependencies\glew\include
+
+Library Directories:
+$(SolutionDir)\Dependencies\glfw\lib-vc2015
+$(SolutionDir)\Dependencies\glew\lib\Release\x64
+
+Linker input:
+opengl32.lib
+glfw3.lib
+glew32s.lib
+
+Preprocessor:
+GLEW_STATIC
+
+
