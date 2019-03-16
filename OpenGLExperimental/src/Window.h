@@ -19,6 +19,8 @@ private:
 
 	static void errorCallback(int error, const char* description);
 
+	static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+
 public:
 	Window(int width = 800, int height = 600, const char* title = "");
 	

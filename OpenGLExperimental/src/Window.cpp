@@ -16,12 +16,6 @@ Window::Window(int width, int height, const char* title) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_COMPAT_PROFILE, GL_FALSE);
 
-
-	//Callbacks:
-	//Error callback
-	glfwSetErrorCallback(Window::errorCallback);
-
-
 	//Cria a janela
 	m_Window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (!m_Window) {
@@ -44,6 +38,12 @@ Window::Window(int width, int height, const char* title) {
 	const GLubyte* version = glGetString(GL_VERSION);
 	std::cout << "Renderizador: " << renderer << std::endl;
 	std::cout << "OpenGL (Versao suportada): " << version << std::endl;
+	
+	//Callbacks:
+	//Error callback
+	glfwSetErrorCallback(Window::errorCallback);
+	//Resize Window callback
+	glfwSetFramebufferSizeCallback(m_Window, Window::frameBufferSizeCallback);
 
 	
 }
@@ -63,8 +63,13 @@ void Window::update() {
 	glfwSwapBuffers(m_Window);
 }
 
+//callbacks
 void Window::errorCallback(int error, const char* description) {
 	std::cerr << "Erro " << error << ": " << description << std::endl;
+}
+
+void Window::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
 }
 
 Window::~Window() {

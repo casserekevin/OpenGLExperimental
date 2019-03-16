@@ -4,12 +4,14 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
+    <ClCompile Include="src\OpenGLErrors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\MyScene.h" />
-    <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\OpenGLErrors.h" />
+    <ClInclude Include="src\ShaderReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />

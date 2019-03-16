@@ -150,14 +150,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\OpenGLErrors.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\OpenGLErrors.h" />
     <ClInclude Include="src\MyScene.h" />
     <ClInclude Include="src\Scene.h" />
-    <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\ShaderReader.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>

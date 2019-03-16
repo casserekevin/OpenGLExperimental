@@ -5,7 +5,7 @@
 #include <math.h>
 
 #include "MyScene.h"
-#include "Util.h"
+#include "ShaderReader.h"
 
 MyScene::MyScene() {
 

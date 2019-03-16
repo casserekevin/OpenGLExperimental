@@ -1,5 +1,4 @@
-#ifndef _UTIL_H
-#define _UTIL_H
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -25,4 +24,3 @@ bool loadFile(const char* filename, std::stringstream& result) {
 	return false;
 }
 
-#endif
