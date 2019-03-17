@@ -1,12 +1,16 @@
 #pragma once
-class OpenGLErrors{
-private:
 
-public:
-	OpenGLErrors();
+#include <iostream>
 
-	void clearErrors();
+void clearErrors() {
+	while (glGetError() != GL_NO_ERROR);
+}
 
-	~OpenGLErrors();
-};
+void checkErrors() {
+	while (GLenum error = glGetError()) {
+		std::cout << "[OpenGL Error] (0x" << std::hex << error << std::dec << ")" << std::endl;
+	}
+}
+
+
 

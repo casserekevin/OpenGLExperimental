@@ -4,7 +4,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
-    <ClCompile Include="src\OpenGLErrors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h" />

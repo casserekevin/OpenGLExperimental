@@ -150,7 +150,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\OpenGLErrors.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
     <ClCompile Include="src\Window.cpp" />

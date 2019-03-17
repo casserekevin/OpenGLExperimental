@@ -6,6 +6,7 @@
 
 #include "MyScene.h"
 #include "ShaderReader.h"
+#include "OpenGLErrors.h"
 
 MyScene::MyScene() {
 
@@ -130,7 +131,9 @@ void MyScene::update() {
 	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, m_matrix);
 
 	glBindVertexArray(m_vaoID);
+	clearErrors();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+	checkErrors();
 
 	//Desassocia o VAO: Boas Práticas
 	glBindVertexArray(0);
