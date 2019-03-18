@@ -1,5 +1,8 @@
 #pragma once
+
 #include "Scene.h"
+#include "Speed.h"
+
 class MyScene : public Scene{
 
 private:
@@ -23,8 +26,7 @@ private:
 		 0.0f, 0.0f, 0.0f, 1.0f // 4ª coluna
 	};
 
-	float m_speedX = 0.5f;
-	float m_speedY = 0.0f;
+	Speed* speed = new Speed(1.0f, 0.2f);
 
 	float m_initialPositionX = 0.0f;
 	float m_initialPositionY = 0.0f;
@@ -34,12 +36,11 @@ private:
 	float m_leftPosition;
 	float m_rightPosition;
 
-	bool m_firstHit = true;
-
 	/*float m_speed = 0.25f;
 	float m_lastPosition = 0.0f;*/
 
 
+	//Funcoes:
 	//Verifica erro na compilação do shader e na linkagem do programa
 	int verifyShaderCompilation(unsigned int shaderID);
 	int verifyProgramLink(unsigned int programID);

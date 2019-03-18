@@ -39,6 +39,11 @@ Window::Window(int width, int height, const char* title) {
 	std::cout << "Renderizador: " << renderer << std::endl;
 	std::cout << "OpenGL (Versao suportada): " << version << std::endl;
 	
+	//habilita o corte de faces; corta as faces de tras; define quais são as faces frontais
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+
 	//Callbacks:
 	//Error callback
 	glfwSetErrorCallback(Window::errorCallback);

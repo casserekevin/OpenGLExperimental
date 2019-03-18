@@ -155,10 +155,13 @@
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\LightFunction.h" />
+    <ClInclude Include="src\Normal.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
     <ClInclude Include="src\MyScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\ShaderReader.h" />
+    <ClInclude Include="src\Speed.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>

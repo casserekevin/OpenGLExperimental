@@ -7,6 +7,8 @@
 #include "MyScene.h"
 #include "ShaderReader.h"
 #include "OpenGLErrors.h"
+#include "Normal.h"
+#include "LightFunction.h"
 
 MyScene::MyScene() {
 
@@ -100,40 +102,39 @@ void MyScene::update() {
 	}
 	m_matrix[12] = elapsedSeconds * m_speed + m_lastPosition;
 	m_lastPosition = m_matrix[12];*/
+	Normal normal;
 
 	if ((m_rightPosition + m_initialPositionX) >= 1.0f){
-		if (m_firstHit) {
-			m_speedX = -m_speedX;
-			m_speedY = 0.5f;
-
-			m_firstHit = false;
-		}
-		else {
-			m_speedX = -m_speedX;
-		}
+		normal.x = -1;
+		normal.y = 0;
+		LightReflection(normal, speed);
 	}
 	else if ((m_leftPosition + m_initialPositionX) <= -1.0f){
-		m_speedX = -m_speedX;
+		normal.x = 1;
+		normal.y = 0;
+		LightReflection(normal, speed);
 	}
 	if ((m_topPosition + m_initialPositionY) >= 1.0f) {
-		m_speedY = -m_speedY;
+		normal.x = 0;
+		normal.y = -1;
+		LightReflection(normal, speed);
 	}
 	else if ((m_bottomPosition + m_initialPositionY)  <= -1.0f) {
-		m_speedY = -m_speedY;
+		normal.x = 0;
+		normal.y = -1;
+		LightReflection(normal, speed);
 	}
 	
-	m_matrix[12] = elapsedSeconds * m_speedX + m_initialPositionX;
+	m_matrix[12] = elapsedSeconds * speed->x + m_initialPositionX;
 	m_initialPositionX = m_matrix[12];
 
-	m_matrix[13] = elapsedSeconds * m_speedY + m_initialPositionY;
+	m_matrix[13] = elapsedSeconds * speed->y + m_initialPositionY;
 	m_initialPositionY = m_matrix[13];
 
 	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, m_matrix);
 
 	glBindVertexArray(m_vaoID);
-	clearErrors();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-	checkErrors();
 
 	//Desassocia o VAO: Boas Práticas
 	glBindVertexArray(0);
