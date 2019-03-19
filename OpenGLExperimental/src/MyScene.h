@@ -26,7 +26,7 @@ private:
 		 0.0f, 0.0f, 0.0f, 1.0f // 4ª coluna
 	};
 
-	Speed* speed = new Speed(1.0f, 0.2f);
+	Speed* m_speed = new Speed(1.0f, 0.2f);
 
 	float m_initialPositionX = 0.0f;
 	float m_initialPositionY = 0.0f;

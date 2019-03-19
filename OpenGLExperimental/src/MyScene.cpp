@@ -107,28 +107,28 @@ void MyScene::update() {
 	if ((m_rightPosition + m_initialPositionX) >= 1.0f){
 		normal.x = -1;
 		normal.y = 0;
-		LightReflection(normal, speed);
+		LightReflection(normal, m_speed);
 	}
 	else if ((m_leftPosition + m_initialPositionX) <= -1.0f){
 		normal.x = 1;
 		normal.y = 0;
-		LightReflection(normal, speed);
+		LightReflection(normal, m_speed);
 	}
 	if ((m_topPosition + m_initialPositionY) >= 1.0f) {
 		normal.x = 0;
 		normal.y = -1;
-		LightReflection(normal, speed);
+		LightReflection(normal, m_speed);
 	}
 	else if ((m_bottomPosition + m_initialPositionY)  <= -1.0f) {
 		normal.x = 0;
 		normal.y = -1;
-		LightReflection(normal, speed);
+		LightReflection(normal, m_speed);
 	}
 	
-	m_matrix[12] = elapsedSeconds * speed->x + m_initialPositionX;
+	m_matrix[12] = elapsedSeconds * m_speed->x + m_initialPositionX;
 	m_initialPositionX = m_matrix[12];
 
-	m_matrix[13] = elapsedSeconds * speed->y + m_initialPositionY;
+	m_matrix[13] = elapsedSeconds * m_speed->y + m_initialPositionY;
 	m_initialPositionY = m_matrix[13];
 
 	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, m_matrix);
