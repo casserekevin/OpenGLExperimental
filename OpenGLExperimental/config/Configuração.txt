@@ -14,6 +14,7 @@ OpenGL configuration:
 Include Directories:
 $(SolutionDir)\Dependencies\glfw\include
 $(SolutionDir)\Dependencies\glew\include
+$(SolutionDir)\Dependencies\glm\include  //GLM não possui lib
 
 Library Directories:
 $(SolutionDir)\Dependencies\glfw\lib-vc2015

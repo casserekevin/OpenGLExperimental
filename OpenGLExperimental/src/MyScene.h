@@ -1,5 +1,8 @@
 #pragma once
 
+#include <GLM/glm.hpp>
+#include <GLM/gtc/type_ptr.hpp>
+
 #include "Scene.h"
 #include "Speed.h"
 
@@ -18,18 +21,10 @@ private:
 	int m_matrixLocation;
 
 	//DADOS 
-	//translação
-	float m_matrix[16] = { 
-		 1.0f, 0.0f, 0.0f, 0.0f, // 1ª coluna
-		 0.0f, 1.0f, 0.0f, 0.0f, // 2ª coluna
-		 0.0f, 0.0f, 1.0f, 0.0f, // 3ª coluna
-		 0.0f, 0.0f, 0.0f, 1.0f // 4ª coluna
-	};
-
 	Speed* m_speed = new Speed(1.0f, 0.2f);
 
-	float m_initialPositionX = 0.0f;
-	float m_initialPositionY = 0.0f;
+	float m_posicaoAtualX = 0.0f;
+	float m_posicaoAtualY = 0.0f;
 
 	float m_topPosition;
 	float m_bottomPosition;
@@ -46,6 +41,7 @@ private:
 	int verifyProgramLink(unsigned int programID);
 	
 	unsigned int createShader(std::string shaderSource, unsigned int type);	
+
 public:
 	MyScene();
 

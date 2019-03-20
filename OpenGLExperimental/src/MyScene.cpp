@@ -1,5 +1,10 @@
-#include <GL/glew.h>
+#include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
+//glm includes
+#include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
+#include <GLM/gtc/type_ptr.hpp>
+#include <GLM/mat4x4.hpp>
 
 #include <iostream>
 #include <math.h>
@@ -48,7 +53,6 @@ MyScene::MyScene() {
 		0.5f, -0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f,
 	};
-
 	glGenBuffers(1, &m_vboPositionsID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboPositionsID);
 	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), positions, GL_STATIC_DRAW);
@@ -62,7 +66,6 @@ MyScene::MyScene() {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 1.0f
 	};
-
 	glGenBuffers(1, &m_vboColorsID);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboColorsID);
 	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), colors, GL_STATIC_DRAW);
@@ -70,9 +73,13 @@ MyScene::MyScene() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
 
-	//Desassocia o VAO: Boas Práticas
-	glBindVertexArray(0);
 	//---------------------------------------------------------------------------------------	
+
+	//usa o program
+	glUseProgram(m_ProgramID);
+	//Passagem da matriz 
+	m_matrixLocation = glGetUniformLocation(m_ProgramID, "matrix");
+	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
 	m_topPosition = positions[1];
 	m_bottomPosition = positions[4];
@@ -83,61 +90,53 @@ MyScene::MyScene() {
 void MyScene::update() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	//usa o program
-	glUseProgram(m_ProgramID);
-
-
-	//Passagem da matriz 
-	m_matrixLocation = glGetUniformLocation(m_ProgramID, "matrix");
-	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, m_matrix);
+	//---------------------------------------------------------
 	//Lógica do tempo
 	static double previousSeconds = glfwGetTime();
 	double currentSeconds = glfwGetTime();
 	double elapsedSeconds = currentSeconds - previousSeconds;
 	previousSeconds = currentSeconds;
 
-	/*if (fabs(m_lastPosition) > 1.0f) {
-		m_speed = -m_speed;
-	}
-	m_matrix[12] = elapsedSeconds * m_speed + m_lastPosition;
-	m_lastPosition = m_matrix[12];*/
-	Normal normal;
 
-	if ((m_rightPosition + m_initialPositionX) >= 1.0f){
+	Normal normal;
+	if ((m_rightPosition + m_posicaoAtualX) >= 1.0f){
 		normal.x = -1;
 		normal.y = 0;
 		LightReflection(normal, m_speed);
 	}
-	else if ((m_leftPosition + m_initialPositionX) <= -1.0f){
+	else if ((m_leftPosition + m_posicaoAtualX) <= -1.0f){
 		normal.x = 1;
 		normal.y = 0;
 		LightReflection(normal, m_speed);
 	}
-	if ((m_topPosition + m_initialPositionY) >= 1.0f) {
+	if ((m_topPosition + m_posicaoAtualY) >= 1.0f) {
 		normal.x = 0;
 		normal.y = -1;
 		LightReflection(normal, m_speed);
 	}
-	else if ((m_bottomPosition + m_initialPositionY)  <= -1.0f) {
+	else if ((m_bottomPosition + m_posicaoAtualY)  <= -1.0f) {
 		normal.x = 0;
 		normal.y = -1;
 		LightReflection(normal, m_speed);
 	}
 	
-	m_matrix[12] = elapsedSeconds * m_speed->x + m_initialPositionX;
-	m_initialPositionX = m_matrix[12];
+	std::cout << "Posição Atual X: " << m_posicaoAtualX << std::endl;
+	std::cout << "Posição Atual Y: " << m_posicaoAtualY << std::endl;
 
-	m_matrix[13] = elapsedSeconds * m_speed->y + m_initialPositionY;
-	m_initialPositionY = m_matrix[13];
+	glm::mat4 matrix = glm::translate(glm::mat4(1.0f), glm::vec3(elapsedSeconds * m_speed->x + m_posicaoAtualX, elapsedSeconds * m_speed->y + m_posicaoAtualY, 0.0f));
+	glm::vec4 vector(0.f, 0.f, 1.f, 1.f);
 
-	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, m_matrix);
+	glm::vec4 multiplicaoMatEVec = matrix * vector;
+	m_posicaoAtualX = multiplicaoMatEVec[0];
+	m_posicaoAtualY = multiplicaoMatEVec[1];
 
-	glBindVertexArray(m_vaoID);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	//-------------------------------------------------------------------------------
 
-	//Desassocia o VAO: Boas Práticas
-	glBindVertexArray(0);
+	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
+	
 }
 
 int MyScene::verifyShaderCompilation(unsigned int shaderID) {
