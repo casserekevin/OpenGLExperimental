@@ -1,8 +1,5 @@
 #pragma once
 
-#include <GLM/glm.hpp>
-#include <GLM/gtc/type_ptr.hpp>
-
 #include "Scene.h"
 #include "Speed.h"
 

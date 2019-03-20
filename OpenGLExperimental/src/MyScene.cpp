@@ -4,7 +4,6 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
-#include <GLM/mat4x4.hpp>
 
 #include <iostream>
 #include <math.h>
