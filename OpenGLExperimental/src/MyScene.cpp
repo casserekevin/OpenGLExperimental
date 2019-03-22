@@ -125,17 +125,13 @@ void MyScene::update() {
 	std::cout << "Posição Atual Y: " << m_posicaoAtualY << std::endl;
 
 	glm::mat4 matrix = glm::translate(glm::mat4(1.0f), glm::vec3(elapsedSeconds * m_speed->x + m_posicaoAtualX, elapsedSeconds * m_speed->y + m_posicaoAtualY, 0.0f));
-	glm::vec4 vector(0.f, 0.f, 1.f, 1.f);
-
-	glm::vec4 multiplicaoMatEVec = matrix * vector;
-	m_posicaoAtualX = multiplicaoMatEVec[0];
-	m_posicaoAtualY = multiplicaoMatEVec[1];
-
+	
+	m_posicaoAtualX = glm::value_ptr(matrix)[12];
+	m_posicaoAtualY = glm::value_ptr(matrix)[13];
 	//-------------------------------------------------------------------------------
 
 	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
 	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
-	
 }
 
 int MyScene::verifyShaderCompilation(unsigned int shaderID) {
