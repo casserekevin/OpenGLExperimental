@@ -14,6 +14,12 @@
 #include "Normal.h"
 #include "LightFunction.h"
 
+//MACRO DE DEBUG
+#define ASSERT(x) if(!(x)) __debugbreak();
+#define DEBUG_ERROR(x) clearErrors();\
+	x;\
+	ASSERT(logErrors(#x, __FILE__, __LINE__))
+
 MyScene::MyScene() {
 
 	glClearColor(0.5f, 0.5f, 1, 0);
@@ -87,9 +93,8 @@ MyScene::MyScene() {
 }
 
 void MyScene::update() {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	DEBUG_ERROR(glDrawArrays(GL_TRIANGLES, 0, 3));
 
 	//---------------------------------------------------------
 	//Lógica do tempo
@@ -121,8 +126,9 @@ void MyScene::update() {
 		LightReflection(normal, m_speed);
 	}
 	
-	std::cout << "Posição Atual X: " << m_posicaoAtualX << std::endl;
-	std::cout << "Posição Atual Y: " << m_posicaoAtualY << std::endl;
+	std::cout << "Posicao Atual X: " << m_posicaoAtualX << std::endl;
+	std::cout << "Posicao Atual Y: " << m_posicaoAtualY << std::endl;
+	std::cout << "------------------------------------------------" << std::endl;
 
 	glm::mat4 matrix = glm::translate(glm::mat4(1.0f), glm::vec3(elapsedSeconds * m_speed->x + m_posicaoAtualX, elapsedSeconds * m_speed->y + m_posicaoAtualY, 0.0f));
 	
