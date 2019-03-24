@@ -2,6 +2,7 @@
 
 #include "Scene.h"
 #include "Speed.h"
+#include "VertexBuffer.h"
 
 class MyScene : public Scene{
 
@@ -10,8 +11,8 @@ private:
 	unsigned int m_VertexShaderID;
 	unsigned int m_FragmentShaderID;
 
-	unsigned int m_vboPositionsID;
-	unsigned int m_vboColorsID;
+	VertexBuffer* vboPositions;
+	VertexBuffer* vboColors;
 
 	unsigned int m_vaoID;
 

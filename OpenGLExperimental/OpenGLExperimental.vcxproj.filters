@@ -4,6 +4,8 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
+    <ClCompile Include="src\OpenGLErrors.cpp" />
+    <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Window.h" />
@@ -14,6 +16,7 @@
     <ClInclude Include="src\Normal.h" />
     <ClInclude Include="src\Speed.h" />
     <ClInclude Include="src\LightFunction.h" />
+    <ClInclude Include="src\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />

@@ -13,12 +13,7 @@
 #include "OpenGLErrors.h"
 #include "Normal.h"
 #include "LightFunction.h"
-
-//MACRO DE DEBUG
-#define ASSERT(x) if(!(x)) __debugbreak();
-#define DEBUG_ERROR(x) clearErrors();\
-	x;\
-	ASSERT(logErrors(#x, __FILE__, __LINE__))
+#include "VertexBuffer.h"
 
 MyScene::MyScene() {
 
@@ -58,9 +53,7 @@ MyScene::MyScene() {
 		0.5f, -0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f,
 	};
-	glGenBuffers(1, &m_vboPositionsID);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vboPositionsID);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), positions, GL_STATIC_DRAW);
+	vboPositions = new VertexBuffer(9 * sizeof(float), positions);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
@@ -71,13 +64,10 @@ MyScene::MyScene() {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 1.0f
 	};
-	glGenBuffers(1, &m_vboColorsID);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vboColorsID);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), colors, GL_STATIC_DRAW);
+	vboColors = new VertexBuffer(9 * sizeof(float), colors);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
-
 	//---------------------------------------------------------------------------------------	
 
 	//usa o program
@@ -94,7 +84,7 @@ MyScene::MyScene() {
 
 void MyScene::update() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	DEBUG_ERROR(glDrawArrays(GL_TRIANGLES, 0, 3));
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	//---------------------------------------------------------
 	//Lógica do tempo

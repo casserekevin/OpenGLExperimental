@@ -152,6 +152,8 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MyScene.cpp" />
+    <ClCompile Include="src\OpenGLErrors.cpp" />
+    <ClCompile Include="src\VertexBuffer.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +164,7 @@
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\ShaderReader.h" />
     <ClInclude Include="src\Speed.h" />
+    <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
