@@ -15,7 +15,9 @@
 #include "LightFunction.h"
 #include "VertexBuffer.h"
 
-MyScene::MyScene() {
+MyScene::MyScene() {}
+
+MyScene::MyScene(int width, int height): m_width(width), m_height(height) {
 
 	glClearColor(0.5f, 0.5f, 1, 0);
 
@@ -53,7 +55,7 @@ MyScene::MyScene() {
 		0.5f, -0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f,
 	};
-	vboPositions = new VertexBuffer(9 * sizeof(float), positions);
+	m_vboPositions = new VertexBuffer(9 * sizeof(float), positions);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
@@ -64,7 +66,7 @@ MyScene::MyScene() {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 1.0f
 	};
-	vboColors = new VertexBuffer(9 * sizeof(float), colors);
+	m_vboColors = new VertexBuffer(9 * sizeof(float), colors);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
@@ -72,9 +74,26 @@ MyScene::MyScene() {
 
 	//usa o program
 	glUseProgram(m_ProgramID);
-	//Passagem da matriz 
-	m_matrixLocation = glGetUniformLocation(m_ProgramID, "matrix");
-	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+	
+	//---------------------------------------------------------------------------------------
+	//PASSAGEM DAS MATRIZES
+	//Passagem da model matrix
+	glm::mat4 modelMatrix(1.0f);
+	m_modelMatrix = glGetUniformLocation(m_ProgramID, "modelMatrix");
+	glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+	//Passagem da view matrix
+	glm::mat4 viewMatrix(1.0f);
+	viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	m_viewMatrix = glGetUniformLocation(m_ProgramID, "viewMatrix");
+	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+	//Passagem da projection matrix
+	glm::mat4 projectionMatrix(1.0f);
+	projectionMatrix = glm::perspective(glm::radians(m_fov), (float)m_width / (float)m_height, 0.1f, 100.0f);
+	m_projectionMatrix = glGetUniformLocation(m_ProgramID, "projectionMatrix");
+	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	//---------------------------------------------------------------------------------------
 
 	m_topPosition = positions[1];
 	m_bottomPosition = positions[4];
@@ -88,10 +107,10 @@ void MyScene::update() {
 
 	//---------------------------------------------------------
 	//Lógica do tempo
-	static double previousSeconds = glfwGetTime();
-	double currentSeconds = glfwGetTime();
-	double elapsedSeconds = currentSeconds - previousSeconds;
-	previousSeconds = currentSeconds;
+	static float lastFrame = glfwGetTime();
+	float currentFrame = glfwGetTime();
+	m_deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
 
 
 	Normal normal;
@@ -118,15 +137,17 @@ void MyScene::update() {
 	
 	std::cout << "Posicao Atual X: " << m_posicaoAtualX << std::endl;
 	std::cout << "Posicao Atual Y: " << m_posicaoAtualY << std::endl;
+	std::cout << "Width: " <<  m_width << " Height: " << m_height << std::endl;
 	std::cout << "------------------------------------------------" << std::endl;
-
-	glm::mat4 matrix = glm::translate(glm::mat4(1.0f), glm::vec3(elapsedSeconds * m_speed->x + m_posicaoAtualX, elapsedSeconds * m_speed->y + m_posicaoAtualY, 0.0f));
-	
-	m_posicaoAtualX = glm::value_ptr(matrix)[12];
-	m_posicaoAtualY = glm::value_ptr(matrix)[13];
 	//-------------------------------------------------------------------------------
 
-	glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed->x + m_posicaoAtualX, m_deltaTime * m_speed->y + m_posicaoAtualY, 0.0f));
+	glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
+	m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
+
+	glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
 }
 
@@ -190,6 +211,79 @@ unsigned int MyScene::createShader(std::string shaderSource, unsigned int type) 
 	glCompileShader(shaderID);
 
 	return shaderID;
+}
+
+void MyScene::setNewResizeProjectionMatrix() {
+	glm::mat4 projectionMatrix(1.0f);
+	projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
+	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+}
+
+void MyScene::processKeyboardInput() {
+	if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(m_windowThatIsInserted, true);
+	}
+	float cameraSpeed = 2.5 * m_deltaTime;
+	if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_W) == GLFW_PRESS) {
+		cameraPos += cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_S) == GLFW_PRESS) {
+		cameraPos -= cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_A) == GLFW_PRESS) {
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_D) == GLFW_PRESS) {
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+}
+
+void MyScene::processMouseMovementInput(double xpos, double ypos) {
+	std::cout << "mouse X: " << xpos << " mouse Y: " << ypos << std::endl;
+	if (m_firstMouse)
+	{
+		m_lastX = xpos;
+		m_lastY = ypos;
+		m_firstMouse = false;
+	}
+
+	float xoffset = xpos - m_lastX;
+	float yoffset = m_lastY - ypos; // reversed since y-coordinates go from bottom to top
+	m_lastX = xpos;
+	m_lastY = ypos;
+
+	float sensitivity = 0.1f; // change this value to your liking
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	m_yaw += xoffset;
+	m_pitch += yoffset;
+
+	// make sure that when pitch is out of bounds, screen doesn't get flipped
+	if (m_pitch > 89.0f)
+		m_pitch = 89.0f;
+	if (m_pitch < -89.0f)
+		m_pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	front.y = sin(glm::radians(m_pitch));
+	front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	cameraFront = glm::normalize(front);
+}
+void MyScene::processMouseZoomInput(double xoffset, double yoffset) {
+	if (m_fov >= 1.0f && m_fov <= 45.0f) {
+	m_fov -= yoffset;
+	}
+	if (m_fov <= 1.0f) {
+		m_fov = 1.0f;
+	}
+	if (m_fov >= 45.0f) {
+		m_fov = 45.0f;
+	}
+	glm::mat4 projectionMatrix(1.0f);
+	projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
+	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 }
 
 MyScene::~MyScene() {
