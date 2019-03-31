@@ -24,13 +24,11 @@ private:
 	}
 	inline static void frameBufferSizeCallback(GLFWwindow* win, int width, int height) {
 		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
-		window->didResize(width, height);
+		window->frameBufferSize(width, height);
 	}
-	void didResize(int w, int h) {
+	void frameBufferSize(int w, int h) {
 		glViewport(0, 0, w, h);
-		m_scene->setWidth(w);
-		m_scene->setHeight(h);
-		m_scene->setNewResizeProjectionMatrix();
+		m_scene->processFrameBufferSize(w, h);
 	}
 	inline static void mouseMovementCallback(GLFWwindow* win, double xpos, double ypos) {
 		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
@@ -111,7 +109,6 @@ public:
 	inline GLFWwindow* getWindow() {
 		return m_Window;
 	}
-	
 	inline int getWidth() {
 		return m_width;
 	}
@@ -140,6 +137,5 @@ public:
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
 	}
-
 };
 

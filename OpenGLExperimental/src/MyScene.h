@@ -137,6 +137,12 @@ private:
 		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(m_windowThatIsInserted, true);
 		}
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_M) == GLFW_PRESS) {
+			glfwSetInputMode(m_windowThatIsInserted, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_N) == GLFW_PRESS) {
+			glfwSetInputMode(m_windowThatIsInserted, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		}
 		float cameraSpeed = 2.5 * m_deltaTime;
 		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_W) == GLFW_PRESS) {
 			cameraPos += cameraSpeed * cameraFront;
@@ -194,6 +200,13 @@ private:
 		if (m_fov >= 45.0f) {
 			m_fov = 45.0f;
 		}
+		glm::mat4 projectionMatrix(1.0f);
+		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
+		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	}
+	void processFrameBufferSize(int width, int height) override {
+		m_width = width;
+		m_height = height;
 		glm::mat4 projectionMatrix(1.0f);
 		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
 		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
@@ -334,19 +347,7 @@ public:
 		//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
 	}
 
-	void setNewResizeProjectionMatrix() override {
-		glm::mat4 projectionMatrix(1.0f);
-		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
-		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-	}
-
 	//setters
-	inline void setWidth(int width) override{
-		m_width = width;
-	}
-	inline void setHeight(int height) override{
-		m_height = height;
-	}
 	inline void setWindow(GLFWwindow* window) {
 		m_windowThatIsInserted = window;
 	}
