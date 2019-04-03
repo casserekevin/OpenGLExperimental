@@ -51,7 +51,10 @@ public:
 					mesh->addVertice(x, y, z);
 				}
 				else if (s_temp == "vt") {
+					float x, y;
+					ss_line >> x >> y;
 
+					mesh->addTexture(x, y);
 				}
 				else if (s_temp == "vn") {
 					float x, y, z;
@@ -98,7 +101,24 @@ public:
 							group->addFace(face);
 						}
 						else { // v/t/n
+							Group* group = mesh->getLastGroup();
 
+							Face* face = new Face();
+							face->addIndexVertice(std::stoi(s_vertice1.at(0)));
+							face->addIndexTexture(std::stoi(s_vertice1.at(1)));
+							face->addIndexNormal(std::stoi(s_vertice1.at(2)));
+
+							std::vector<string> s_vertice2 = split(vertice2, '/');
+							face->addIndexVertice(std::stoi(s_vertice2.at(0)));
+							face->addIndexTexture(std::stoi(s_vertice2.at(1)));
+							face->addIndexNormal(std::stoi(s_vertice2.at(2)));
+
+							std::vector<string> s_vertice3 = split(vertice3, '/');
+							face->addIndexVertice(std::stoi(s_vertice3.at(0)));
+							face->addIndexTexture(std::stoi(s_vertice3.at(1)));
+							face->addIndexNormal(std::stoi(s_vertice3.at(2)));
+
+							group->addFace(face);
 						}
 					}
 				}
