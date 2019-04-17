@@ -14,14 +14,14 @@
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\Face.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />
-    <ClInclude Include="src\OBJClasses\Reader\OBJReader.h" />
     <ClInclude Include="src\OBJClasses\FaceType.h" />
+    <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />
     <None Include="res\shaders\vertex.shader" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\main.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
 </Project>

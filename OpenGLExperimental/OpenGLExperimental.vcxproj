@@ -72,26 +72,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Dependencies\glfw\include;$(SolutionDir)\Dependencies\glew\include;$(SolutionDir)\Dependencies\glm\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glfw\lib-vc2015;$(SolutionDir)\Dependencies\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glew\include;$(SolutionDir)Dependencies\glm\include;$(SolutionDir)Dependencies\soil2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\glfw\lib-vc2015;$(SolutionDir)Dependencies\glew\lib\Release\x64;$(SolutionDir)Dependencies\soil2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Dependencies\glfw\include;$(SolutionDir)\Dependencies\glew\include;$(SolutionDir)\Dependencies\glm\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glfw\lib-vc2015;$(SolutionDir)\Dependencies\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glew\include;$(SolutionDir)Dependencies\glm\include;$(SolutionDir)Dependencies\soil2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\glfw\lib-vc2015;$(SolutionDir)Dependencies\glew\lib\Release\x64;$(SolutionDir)Dependencies\soil2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Dependencies\glfw\include;$(SolutionDir)\Dependencies\glew\include;$(SolutionDir)\Dependencies\glm\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glfw\lib-vc2015;$(SolutionDir)\Dependencies\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glew\include;$(SolutionDir)Dependencies\glm\include;$(SolutionDir)Dependencies\soil2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\glfw\lib-vc2015;$(SolutionDir)Dependencies\glew\lib\Release\x64;$(SolutionDir)Dependencies\soil2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Dependencies\glfw\include;$(SolutionDir)\Dependencies\glew\include;$(SolutionDir)\Dependencies\glm\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\Dependencies\glfw\lib-vc2015;$(SolutionDir)\Dependencies\glew\lib\Release\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glew\include;$(SolutionDir)Dependencies\glm\include;$(SolutionDir)Dependencies\soil2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\glfw\lib-vc2015;$(SolutionDir)Dependencies\glew\lib\Release\x64;$(SolutionDir)Dependencies\soil2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -102,7 +102,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,7 +114,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,7 +130,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +146,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32s.lib;soil2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,7 +157,7 @@
     <ClInclude Include="src\OBJClasses\Group.h" />
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />
-    <ClInclude Include="src\OBJClasses\Reader\OBJReader.h" />
+    <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
     <ClInclude Include="src\MyScene.h" />
     <ClInclude Include="src\Scene.h" />
@@ -171,7 +171,7 @@
     <None Include="res\shaders\vertex.shader" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\main.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

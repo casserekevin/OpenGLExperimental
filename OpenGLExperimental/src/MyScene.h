@@ -5,6 +5,8 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
+//SOIL2
+#include <SOIL2/SOIL2.h>
 
 #include <iostream>
 #include <math.h>
@@ -25,15 +27,17 @@ private:
 	int m_width;
 	int m_height;
 
+	unsigned int m_ProgramID;
 	unsigned int m_VertexShaderID;
 	unsigned int m_FragmentShaderID;
-	unsigned int m_ProgramID;
+
 
 	unsigned int m_vaoID;
 
 	VertexBuffer* m_vboPositions;
 	VertexBuffer* m_vboColors;
-
+	VertexBuffer* m_vboTextures;
+	unsigned int m_texture;
 
 	//-------------------------------------------------------
 	//DADOS 
@@ -127,8 +131,6 @@ private:
 		glShaderSource(shaderID, 1, &buff, NULL);
 		glCompileShader(shaderID);
 		verifyShaderCompilation(shaderID);
-		glAttachShader(m_ProgramID, shaderID);
-		glCompileShader(shaderID);
 
 		return shaderID;
 	}
@@ -213,31 +215,44 @@ private:
 	}
 
 public:
+	//CONSTRUTORES
 	MyScene(){}
 	MyScene(int width, int height) : m_width(width), m_height(height) {
-		glClearColor(0.5f, 0.5f, 1, 0);
-
-		//le os arquivos dos shaders
+		
+		//------------------------------------------------------------
+		//LEITURA DOS SHADERS
 		std::stringstream vertexSourceStream;
 		std::stringstream fragmentSourceStream;
 
 		loadFile("res/shaders/vertex.shader", vertexSourceStream);
 		loadFile("res/shaders/fragment.shader", fragmentSourceStream);
 
+		//Shaders carregados em string
 		std::string vertexSource = vertexSourceStream.str();
 		std::string fragmentSource = fragmentSourceStream.str();
+		//------------------------------------------------------------------------------------
 
-		//criar o programa
+
+		//------------------------------------------------------------------------------------
+		//CRIAÇÃO DO PROGRAMA
+		//cria o programa
 		m_ProgramID = glCreateProgram();
 
 		//cria o Vertex Shader
 		m_VertexShaderID = createShader(vertexSource, GL_VERTEX_SHADER);
+		glAttachShader(m_ProgramID, m_VertexShaderID); //linka o shader ao programa
 		//cria o Fragment Shader
 		m_FragmentShaderID = createShader(fragmentSource, GL_FRAGMENT_SHADER);
+		glAttachShader(m_ProgramID, m_FragmentShaderID); //linka o shader ao programa
 
 		//linka o program
 		glLinkProgram(m_ProgramID);
-		verifyProgramLink(m_ProgramID);
+		verifyProgramLink(m_ProgramID); //verifica erros na linkagem do programa
+		
+		//usa o program
+		glUseProgram(m_ProgramID);
+		//-------------------------------------------------------------------------------------
+
 
 		//-------------------------------------------------------------------------------------
 		//DADOS
@@ -266,10 +281,46 @@ public:
 
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
+
+		//Vertex Buffer Object das texturas
+		float textures[] = {
+			0.0f, 0.0f,  // lower-left corner  
+			1.0f, 0.0f,  // lower-right corner
+			0.5f, 1.0f   // top-center corner
+		};
+		m_vboTextures = new VertexBuffer(6 * sizeof(float), textures);
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0);
+
+		//--------
+		//Carrega imagem
+		int image_width, image_height;
+		unsigned char* data_image = SOIL_load_image("res/textures/wall.png", &image_width, &image_height, NULL, SOIL_LOAD_RGBA);
+
+		//Gera textura
+		glGenTextures(1, &m_texture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_texture);
+
+		//Configura Textura
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //Caso o obj for maior que a textura no eixo X, repete a textura
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); //Caso o obj for maior que a textura no eixo Y, repete a textura
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); //Filtro usado quando o objeto aumentar de tamanho
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //Filtro usado quando o objeto diminuir de tamanho
+
+		// Se a imagem carregou corretamente
+		if (data_image) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_image);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else {
+			std::cout << "ERROR::TEXTURE_LOADING_FAILED" << std::endl;
+		}
+		SOIL_free_image_data(data_image);
+		glUniform1i(glGetUniformLocation(m_ProgramID, "texture0"), 0);
 		//---------------------------------------------------------------------------------------	
 
-		//usa o program
-		glUseProgram(m_ProgramID);
 
 		//---------------------------------------------------------------------------------------
 		//PASSAGEM DAS MATRIZES
@@ -298,6 +349,8 @@ public:
 	}
 
 	void update() override {
+		glClearColor(0.5f, 0.5f, 1, 0);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 

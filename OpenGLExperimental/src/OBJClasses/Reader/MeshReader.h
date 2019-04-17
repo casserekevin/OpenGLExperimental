@@ -1,18 +1,17 @@
 #pragma once
 
 
-
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-//#include <stdio.h>
 
 #include "../OBJ.h"
+#include "../Mesh.h"
 
 using std::string;
-class OBJReader {
+class MeshReader {
 private:
 
 	std::vector<std::string> split(const std::string& s, char delimiter)
@@ -28,9 +27,9 @@ private:
 	}
 
 public:
-	OBJReader(){}
+	MeshReader(){}
 
-	OBJ* loadOBJ(string filepath) {
+	Mesh* loadMesh(string filepath) {
 		try {
 			Mesh* mesh = new Mesh();
 			std::ifstream file;
@@ -87,16 +86,16 @@ public:
 							Group* group = mesh->getLastGroup();
 
 							Face* face = new Face();
-							face->addIndexVertice(std::stoi(s_vertice1.at(0)));
-							face->addIndexNormal(std::stoi(s_vertice1.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice1.at(0)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
 							
 							std::vector<string> s_vertice2 = split(vertice2, '/');
-							face->addIndexVertice(std::stoi(s_vertice2.at(0)));
-							face->addIndexNormal(std::stoi(s_vertice2.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice2.at(0)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice2.at(2)) - 1);
 
 							std::vector<string> s_vertice3 = split(vertice3, '/');
-							face->addIndexVertice(std::stoi(s_vertice3.at(0)));
-							face->addIndexNormal(std::stoi(s_vertice3.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice3.at(0)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
 
 							group->addFace(face);
 						}
@@ -104,57 +103,30 @@ public:
 							Group* group = mesh->getLastGroup();
 
 							Face* face = new Face();
-							face->addIndexVertice(std::stoi(s_vertice1.at(0)));
-							face->addIndexTexture(std::stoi(s_vertice1.at(1)));
-							face->addIndexNormal(std::stoi(s_vertice1.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice1.at(0)) - 1);
+							face->addIndexTexture(std::stoi(s_vertice1.at(1)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
 
 							std::vector<string> s_vertice2 = split(vertice2, '/');
-							face->addIndexVertice(std::stoi(s_vertice2.at(0)));
-							face->addIndexTexture(std::stoi(s_vertice2.at(1)));
-							face->addIndexNormal(std::stoi(s_vertice2.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice2.at(0)) - 1);
+							face->addIndexTexture(std::stoi(s_vertice2.at(1)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice2.at(2)) - 1);
 
 							std::vector<string> s_vertice3 = split(vertice3, '/');
-							face->addIndexVertice(std::stoi(s_vertice3.at(0)));
-							face->addIndexTexture(std::stoi(s_vertice3.at(1)));
-							face->addIndexNormal(std::stoi(s_vertice3.at(2)));
+							face->addIndexVertice(std::stoi(s_vertice3.at(0)) - 1);
+							face->addIndexTexture(std::stoi(s_vertice3.at(1)) - 1);
+							face->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
 
 							group->addFace(face);
 						}
 					}
 				}
 			}
-			OBJ* obj = new OBJ();
-			obj->setMesh(mesh);
-			return obj;
+			return mesh;
 		}
 		catch (std::exception e) {
 			std::cerr << "[ERRO] - " << filepath << ": " << e.what() << std::endl;
 			return nullptr;
-		}
-	}
-	
-	bool CloadOBJ(const char* filepath) {
-		FILE* file = fopen(filepath, "r");
-		if (file == NULL) {
-			printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
-			getchar();
-			return false;
-		}
-
-		while (true) {
-			char lineHeader[128];
-			// read the first word of the line
-			int res = fscanf(file, "%s", lineHeader);
-			if (res == EOF)
-				break; // EOF = End Of File. Quit the loop.
-
-			// else : parse lineHeader
-
-			if (strcmp(lineHeader, "v") == 0) {
-				float f_x, f_y, f_z;
-				fscanf(file, "%f %f %f\n", &f_x, &f_y, &f_z);
-				std::cout << f_x << ", " << f_y << ", " << f_z << std::endl;
-			}
 		}
 	}
 };
