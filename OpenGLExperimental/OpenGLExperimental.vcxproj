@@ -164,6 +164,7 @@
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\ShaderReader.h" />
     <ClInclude Include="src\Speed.h" />
+    <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>

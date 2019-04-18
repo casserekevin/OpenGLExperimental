@@ -5,8 +5,6 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
-//SOIL2
-#include <SOIL2/SOIL2.h>
 
 #include <iostream>
 #include <math.h>
@@ -18,6 +16,7 @@
 #include "Speed.h"
 #include "LightFunction.h"
 #include "VertexBuffer.h"
+#include "Texture.h"
 
 
 class MyScene : public Scene{
@@ -35,7 +34,7 @@ private:
 	VertexBuffer* m_vboPositions;
 	VertexBuffer* m_vboColors;
 	VertexBuffer* m_vboTextures;
-	unsigned int m_texture;
+	Texture* texture0;
 
 	//-------------------------------------------------------
 	//DADOS 
@@ -150,9 +149,6 @@ public:
 	//CONSTRUTORES
 	MyScene(){}
 	MyScene(int width, int height) : m_width(width), m_height(height) {
-		
-		//------------------------------------------------------------
-
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		//-------------------------------------------------------------------------------------
@@ -194,33 +190,10 @@ public:
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0);
 
-		//--------
-		//Carrega imagem
-		int image_width, image_height;
-		unsigned char* data_image = SOIL_load_image("res/textures/wall.png", &image_width, &image_height, NULL, SOIL_LOAD_RGBA);
 
-		//Gera textura
-		glGenTextures(1, &m_texture);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-
-		//Configura Textura
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //Caso o obj for maior que a textura no eixo X, repete a textura
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); //Caso o obj for maior que a textura no eixo Y, repete a textura
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR); //Filtro usado quando o objeto aumentar de tamanho
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //Filtro usado quando o objeto diminuir de tamanho
-
-		// Se a imagem carregou corretamente
-		if (data_image) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_image);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		else {
-			std::cout << "ERROR::TEXTURE_LOADING_FAILED" << std::endl;
-		}
-		SOIL_free_image_data(data_image);
-		program->send1i("texture0", 0);
-		//glUniform1i(glGetUniformLocation(m_ProgramID, "texture0"), 0);
+		//Criação e passagem de textura
+		texture0 = new Texture("res/textures/wall.png", GL_TEXTURE_2D, 0);
+		program->send1i("texture0", texture0->getTextureUnit());
 		//---------------------------------------------------------------------------------------	
 
 
@@ -229,21 +202,16 @@ public:
 		//Passagem da model matrix
 		glm::mat4 modelMatrix(1.0f);
 		program->sendMat4fv("modelMatrix", modelMatrix);
-		//m_modelMatrix = glGetUniformLocation(m_ProgramID, "modelMatrix");
-		//glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 		//Passagem da view matrix
 		glm::mat4 viewMatrix(1.0f);
 		viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		program->sendMat4fv("viewMatrix", viewMatrix);
-		//m_viewMatrix = glGetUniformLocation(m_ProgramID, "viewMatrix");
-		//glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
 		//Passagem da projection matrix
 		glm::mat4 projectionMatrix(1.0f);
 		projectionMatrix = glm::perspective(glm::radians(m_fov), (float)m_width / (float)m_height, 0.1f, 100.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
-		//m_projectionMatrix = glGetUniformLocation(m_ProgramID, "projectionMatrix");
 		//---------------------------------------------------------------------------------------
 
 		m_topPosition = positions[1];
@@ -258,6 +226,9 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		program->use();
+		texture0->bind();
+
+
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//---------------------------------------------------------
@@ -298,14 +269,11 @@ public:
 
 		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed.x + m_posicaoAtualX, m_deltaTime * m_speed.y + m_posicaoAtualY, 0.0f));
 		program->sendMat4fv("modelMatrix", modelMatrix);
-		//glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
 		m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
 
 		glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		program->sendMat4fv("viewMatrix", viewMatrix);
-		//glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
 	}
 
 	//setters

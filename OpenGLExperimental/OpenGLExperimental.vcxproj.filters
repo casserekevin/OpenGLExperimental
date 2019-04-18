@@ -17,6 +17,7 @@
     <ClInclude Include="src\OBJClasses\FaceType.h" />
     <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
     <ClInclude Include="src\Program.h" />
+    <ClInclude Include="src\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />
