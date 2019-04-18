@@ -160,6 +160,7 @@
     <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
     <ClInclude Include="src\MyScene.h" />
+    <ClInclude Include="src\Program.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\ShaderReader.h" />
     <ClInclude Include="src\Speed.h" />

@@ -11,13 +11,14 @@
 #include <iostream>
 #include <math.h>
 
+#include "Program.h"
 #include "Scene.h"
 #include "OpenGLErrors.h"
 #include "Normal.h"
 #include "Speed.h"
 #include "LightFunction.h"
-#include "ShaderReader.h"
 #include "VertexBuffer.h"
+
 
 class MyScene : public Scene{
 
@@ -27,10 +28,7 @@ private:
 	int m_width;
 	int m_height;
 
-	unsigned int m_ProgramID;
-	unsigned int m_VertexShaderID;
-	unsigned int m_FragmentShaderID;
-
+	Program* program;
 
 	unsigned int m_vaoID;
 
@@ -44,9 +42,7 @@ private:
 	//time
 	float m_deltaTime = 0.0f;
 	
-	//matrizes
 	//model matrix
-	int m_modelMatrix;
 	Speed m_speed = Speed(1.0f, 0.2f);
 
 	float m_posicaoAtualX = 0.0f;
@@ -57,8 +53,6 @@ private:
 	float m_leftPosition;
 	float m_rightPosition;
 	
-	//view matrix
-	int m_viewMatrix;
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 2.0f); //camera
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -68,73 +62,11 @@ private:
 	float m_lastX = (float)m_width / 2.0;
 	float m_lastY = (float)m_height / 2.0;
 
-	//projection matrix
-	int m_projectionMatrix;
 	float m_fov = 45.0f;
 	//---------------------------------------------------------
 
 
 	//Funcoes:
-	//Verifica erro na compilação do shader e na linkagem do programa
-	int verifyShaderCompilation(unsigned int shaderID) {
-		int result;
-
-		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
-		if (result == GL_FALSE) {
-			int length;
-			glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
-			int type;
-			glGetShaderiv(shaderID, GL_SHADER_TYPE, &type);
-			char* message = (char*)alloca(length * sizeof(char));
-			glGetShaderInfoLog(shaderID, length, &length, message);
-
-			std::string typeS;
-			if (type == GL_VERTEX_SHADER) {
-				typeS = "vertex";
-			}
-			else if (type == GL_FRAGMENT_SHADER) {
-				typeS = "fragment";
-			}
-			else {
-				typeS = "geometry";
-			}
-			std::cout << "Failed to compile " << typeS << " shader" << std::endl;
-			std::cout << message << std::endl;
-
-		}
-
-		return result;
-	}
-	int verifyProgramLink(unsigned int programID) {
-		int result;
-
-		glGetProgramiv(programID, GL_LINK_STATUS, &result);
-		if (result == GL_FALSE) {
-			int length;
-			glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*)alloca(length * sizeof(char));
-			glGetProgramInfoLog(programID, length, &length, message);
-
-			std::cout << "Failed to link program" << std::endl;
-			std::cout << message << std::endl;
-		}
-
-		return result;
-	}
-	
-	unsigned int createShader(std::string shaderSource, unsigned int type) {
-		const char* buff;
-
-		buff = shaderSource.c_str();
-
-		unsigned int shaderID = glCreateShader(type);
-		glShaderSource(shaderID, 1, &buff, NULL);
-		glCompileShader(shaderID);
-		verifyShaderCompilation(shaderID);
-
-		return shaderID;
-	}
-
 	void processKeyboardInput() override {
 		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(m_windowThatIsInserted, true);
@@ -204,14 +136,14 @@ private:
 		}
 		glm::mat4 projectionMatrix(1.0f);
 		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
-		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 	void processFrameBufferSize(int width, int height) override {
 		m_width = width;
 		m_height = height;
 		glm::mat4 projectionMatrix(1.0f);
 		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
-		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 
 public:
@@ -220,39 +152,8 @@ public:
 	MyScene(int width, int height) : m_width(width), m_height(height) {
 		
 		//------------------------------------------------------------
-		//LEITURA DOS SHADERS
-		std::stringstream vertexSourceStream;
-		std::stringstream fragmentSourceStream;
 
-		loadFile("res/shaders/vertex.shader", vertexSourceStream);
-		loadFile("res/shaders/fragment.shader", fragmentSourceStream);
-
-		//Shaders carregados em string
-		std::string vertexSource = vertexSourceStream.str();
-		std::string fragmentSource = fragmentSourceStream.str();
-		//------------------------------------------------------------------------------------
-
-
-		//------------------------------------------------------------------------------------
-		//CRIAÇÃO DO PROGRAMA
-		//cria o programa
-		m_ProgramID = glCreateProgram();
-
-		//cria o Vertex Shader
-		m_VertexShaderID = createShader(vertexSource, GL_VERTEX_SHADER);
-		glAttachShader(m_ProgramID, m_VertexShaderID); //linka o shader ao programa
-		//cria o Fragment Shader
-		m_FragmentShaderID = createShader(fragmentSource, GL_FRAGMENT_SHADER);
-		glAttachShader(m_ProgramID, m_FragmentShaderID); //linka o shader ao programa
-
-		//linka o program
-		glLinkProgram(m_ProgramID);
-		verifyProgramLink(m_ProgramID); //verifica erros na linkagem do programa
-		
-		//usa o program
-		glUseProgram(m_ProgramID);
-		//-------------------------------------------------------------------------------------
-
+		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		//-------------------------------------------------------------------------------------
 		//DADOS
@@ -318,7 +219,8 @@ public:
 			std::cout << "ERROR::TEXTURE_LOADING_FAILED" << std::endl;
 		}
 		SOIL_free_image_data(data_image);
-		glUniform1i(glGetUniformLocation(m_ProgramID, "texture0"), 0);
+		program->send1i("texture0", 0);
+		//glUniform1i(glGetUniformLocation(m_ProgramID, "texture0"), 0);
 		//---------------------------------------------------------------------------------------	
 
 
@@ -326,20 +228,22 @@ public:
 		//PASSAGEM DAS MATRIZES
 		//Passagem da model matrix
 		glm::mat4 modelMatrix(1.0f);
-		m_modelMatrix = glGetUniformLocation(m_ProgramID, "modelMatrix");
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		program->sendMat4fv("modelMatrix", modelMatrix);
+		//m_modelMatrix = glGetUniformLocation(m_ProgramID, "modelMatrix");
+		//glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
 		//Passagem da view matrix
 		glm::mat4 viewMatrix(1.0f);
 		viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		m_viewMatrix = glGetUniformLocation(m_ProgramID, "viewMatrix");
-		glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		program->sendMat4fv("viewMatrix", viewMatrix);
+		//m_viewMatrix = glGetUniformLocation(m_ProgramID, "viewMatrix");
+		//glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
 		//Passagem da projection matrix
 		glm::mat4 projectionMatrix(1.0f);
 		projectionMatrix = glm::perspective(glm::radians(m_fov), (float)m_width / (float)m_height, 0.1f, 100.0f);
-		m_projectionMatrix = glGetUniformLocation(m_ProgramID, "projectionMatrix");
-		glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+		program->sendMat4fv("projectionMatrix", projectionMatrix);
+		//m_projectionMatrix = glGetUniformLocation(m_ProgramID, "projectionMatrix");
 		//---------------------------------------------------------------------------------------
 
 		m_topPosition = positions[1];
@@ -352,6 +256,8 @@ public:
 		glClearColor(0.5f, 0.5f, 1, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		program->use();
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//---------------------------------------------------------
@@ -391,12 +297,14 @@ public:
 		//-------------------------------------------------------------------------------
 
 		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed.x + m_posicaoAtualX, m_deltaTime * m_speed.y + m_posicaoAtualY, 0.0f));
-		glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		program->sendMat4fv("modelMatrix", modelMatrix);
+		//glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
 		m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
 
 		glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		program->sendMat4fv("viewMatrix", viewMatrix);
+		//glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		//glUniformMatrix4fv(m_matrixLocation, 1, GL_FALSE, glm::value_ptr(m_matrix));
 	}
 
@@ -406,8 +314,6 @@ public:
 	}
 
 
-	~MyScene() {
-		glDeleteProgram(m_ProgramID);
-	}
+	~MyScene() {}
 };
 

@@ -10,4 +10,5 @@ uniform sampler2D texture0;
 void main(){
 	//fColorOut = vertexColor;
 	fColorOut = texture(texture0, vertexTextureCoordinate) * vertexColor;
+	//fColorOut = texture(texture0, vertexTextureCoordinate);
 }
