@@ -65,7 +65,7 @@ public:
 					string s_group;
 					ss_line >> s_group;
 
-					Group* grupo = new Group();
+					Group* grupo = new Group(mesh);
 					grupo->setNome(s_group);
 					mesh->addGroup(grupo);
 				}
@@ -86,15 +86,15 @@ public:
 							Group* group = mesh->getLastGroup();
 
 							Face* face = new Face();
-							face->addIndexVertice(std::stoi(s_vertice1.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice1.at(0)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
 							
 							std::vector<string> s_vertice2 = split(vertice2, '/');
-							face->addIndexVertice(std::stoi(s_vertice2.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice2.at(0)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice2.at(2)) - 1);
 
 							std::vector<string> s_vertice3 = split(vertice3, '/');
-							face->addIndexVertice(std::stoi(s_vertice3.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice3.at(0)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
 
 							group->addFace(face);
@@ -103,17 +103,17 @@ public:
 							Group* group = mesh->getLastGroup();
 
 							Face* face = new Face();
-							face->addIndexVertice(std::stoi(s_vertice1.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice1.at(0)) - 1);
 							face->addIndexTexture(std::stoi(s_vertice1.at(1)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
 
 							std::vector<string> s_vertice2 = split(vertice2, '/');
-							face->addIndexVertice(std::stoi(s_vertice2.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice2.at(0)) - 1);
 							face->addIndexTexture(std::stoi(s_vertice2.at(1)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice2.at(2)) - 1);
 
 							std::vector<string> s_vertice3 = split(vertice3, '/');
-							face->addIndexVertice(std::stoi(s_vertice3.at(0)) - 1);
+							face->addIndexPosition(std::stoi(s_vertice3.at(0)) - 1);
 							face->addIndexTexture(std::stoi(s_vertice3.at(1)) - 1);
 							face->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
 
@@ -121,6 +121,9 @@ public:
 						}
 					}
 				}
+			}
+			for (Group* g : mesh->getGroups()) {
+				g->createVAO();
 			}
 			return mesh;
 		}

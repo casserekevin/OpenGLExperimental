@@ -1,7 +1,8 @@
 #version 460
 
-in vec4 vertexColor;
+in vec4 vertexNormal;
 in vec2 vertexTextureCoordinate;
+in vec4 vertexColor;
 
 out vec4 fColorOut;
 

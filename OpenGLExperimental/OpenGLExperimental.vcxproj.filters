@@ -10,20 +10,21 @@
     <ClInclude Include="src\Speed.h" />
     <ClInclude Include="src\LightFunction.h" />
     <ClInclude Include="src\VertexBuffer.h" />
-    <ClInclude Include="src\OBJClasses\Group.h" />
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\Face.h" />
-    <ClInclude Include="src\OBJClasses\OBJ.h" />
     <ClInclude Include="src\OBJClasses\FaceType.h" />
     <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
     <ClInclude Include="src\Program.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\OBJClasses\OBJ.h" />
+    <ClInclude Include="src\OBJClasses\Group.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />
     <None Include="res\shaders\vertex.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\OBJClasses\Group.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
 </Project>

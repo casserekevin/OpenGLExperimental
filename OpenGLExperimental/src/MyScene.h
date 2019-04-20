@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 #include "Program.h"
 #include "Scene.h"
@@ -17,6 +18,10 @@
 #include "LightFunction.h"
 #include "VertexBuffer.h"
 #include "Texture.h"
+#include "OBJClasses/OBJ.h"
+#include "OBJClasses/Mesh.h"
+
+#include "OBJClasses/Reader/MeshReader.h"
 
 
 class MyScene : public Scene{
@@ -151,6 +156,10 @@ public:
 	MyScene(int width, int height) : m_width(width), m_height(height) {
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
+		MeshReader* meshReader = new MeshReader();
+		Mesh* mesh = meshReader->loadMesh("res/obj/cube.obj");
+		OBJ* obj = new OBJ(mesh);
+
 		//-------------------------------------------------------------------------------------
 		//DADOS
 		//Vertex Array Object
@@ -158,37 +167,48 @@ public:
 		glBindVertexArray(m_vaoID);
 
 		//Vertex Buffer Object das Posiçoes
-		float positions[9] = {
-			0.0f, 0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
+		std::vector<glm::vec3> vec_positions = {
+			glm::vec3(0.0f, 0.5f, 0.0f),
+			glm::vec3(0.5f, -0.5f, 0.0f),
+			glm::vec3(-0.5f, -0.5f, 0.0f),
+			glm::vec3(0.0f, 0.5f, 0.0f),
+			glm::vec3(-0.5f, -0.5f, 0.0f),
+			glm::vec3(-1.0f, 0.5f, 0.0f)
 		};
-		m_vboPositions = new VertexBuffer(9 * sizeof(float), positions);
+
+		m_vboPositions = new VertexBuffer(vec_positions.size() * sizeof(glm::vec3), vec_positions.data());
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		//Vertex Buffer Object das Cores
-		float colors[9] = {
-			1.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 1.0f
+		std::vector<glm::vec3> vec_colors = {
+			glm::vec3(1.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f)
 		};
-		m_vboColors = new VertexBuffer(9 * sizeof(float), colors);
+		m_vboColors = new VertexBuffer(vec_colors.size() * sizeof(glm::vec3), vec_colors.data());
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		//Vertex Buffer Object das texturas
-		float textures[] = {
-			0.0f, 0.0f,  // lower-left corner  
-			1.0f, 0.0f,  // lower-right corner
-			0.5f, 1.0f   // top-center corner
+		std::vector<glm::vec2> vec_textures = {
+			glm::vec2(0.0f, 0.0f),
+			glm::vec2(1.0f, 0.0f),
+			glm::vec2(0.5f, 1.0f),
+			glm::vec2(0.0f, 0.0f),
+			glm::vec2(1.0f, 0.0f),
+			glm::vec2(0.5f, 1.0f)
 		};
-		m_vboTextures = new VertexBuffer(6 * sizeof(float), textures);
+		m_vboTextures = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
 
 		//Criação e passagem de textura
@@ -214,10 +234,16 @@ public:
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
 		//---------------------------------------------------------------------------------------
 
-		m_topPosition = positions[1];
+		/*m_topPosition = positions[1];
 		m_bottomPosition = positions[4];
 		m_rightPosition = positions[3];
-		m_leftPosition = positions[6];
+		m_leftPosition = positions[6];*/
+		
+		m_topPosition = vec_positions.at(0).y;
+		m_bottomPosition = vec_positions.at(1).y;
+		m_rightPosition = vec_positions.at(1).x;
+		m_leftPosition = vec_positions.at(2).x;
+
 	}
 
 	void update() override {
@@ -229,7 +255,7 @@ public:
 		texture0->bind();
 
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//---------------------------------------------------------
 		//Lógica do tempo
