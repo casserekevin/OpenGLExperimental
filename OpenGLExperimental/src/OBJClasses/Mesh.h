@@ -88,6 +88,18 @@ public:
 		return this->m_groups.at(0)->getTypeDraw();
 	}
 
+	void applyColor() {
+		for (Group* g : this->m_groups) {
+			g->enableColor();
+		}
+	}
+
+	void disapplyColor() {
+		for (Group* g : this->m_groups) {
+			g->disableColor();
+		}
+	}
+
 	void draw(Program* program) {
 		for (Group* g : this->m_groups) {
 			g->draw(program);

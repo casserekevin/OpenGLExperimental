@@ -17,6 +17,8 @@ private:
 
 	glm::mat4 modelMatrix;
 
+	glm::vec3 color;
+
 	//functions
 	void initModelMatrix() {
 		
@@ -31,6 +33,10 @@ private:
 		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0.f, 0.f, 1.f));
 		this->modelMatrix = glm::scale(this->modelMatrix, this->scale);
 	}
+
+	void initColor() {
+		this->color = glm::vec3(0.f, 0.f, 0.f);
+	}
 	
 public:
 
@@ -41,6 +47,7 @@ public:
 		this->program = program;
 
 		initModelMatrix();
+		initColor();
 	}
 
 	void setMesh(Mesh* mesh) {
@@ -62,8 +69,18 @@ public:
 		return m_mesh->getFirstTypeDraw();
 	}
 
+	void addColor(glm::vec3 color) {
+		this->color = color;
+		this->m_mesh->applyColor();
+	}
+
+	void removeColor() {
+		this->m_mesh->disapplyColor();
+	}
+
 	void draw() {
-		m_mesh->draw(this->program);
 		program->sendMat4fv("modelMatrix", this->modelMatrix);
+		program->sendVec3fv("color", this->color);
+		m_mesh->draw(this->program);
 	}
 };

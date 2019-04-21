@@ -32,7 +32,8 @@ private:
 	int m_height;
 
 	Program* program;
-	OBJ* obj;
+	OBJ* obj1;
+	OBJ* obj2;
 
 	unsigned int m_vaoID;
 
@@ -70,9 +71,20 @@ private:
 	float m_fov = 45.0f;
 	//---------------------------------------------------------
 
+	int clickTecla = 0;
 
 	//Funcoes:
 	void processKeyboardInput() override {
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_1) == GLFW_PRESS) {
+			if (this->clickTecla == 0) {
+				obj1->addColor(glm::vec3(1.f, 0.f, 0.f));
+				clickTecla++;
+			}
+			else {
+				obj1->removeColor();
+				clickTecla = 0;
+			}
+		}
 		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 			glfwSetWindowShouldClose(m_windowThatIsInserted, true);
 		}
@@ -158,8 +170,11 @@ public:
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
-		Mesh* mesh = meshReader->loadMesh("res/obj/cube2.obj");
-		obj = new OBJ(mesh, program);
+		Mesh* mesh1 = meshReader->loadMesh("res/obj/cube2.obj");
+		obj1 = new OBJ(mesh1, program);
+		Mesh* mesh2 = meshReader->loadMesh("res/obj/cube.obj");
+		obj2 = new OBJ(mesh2, program);
+
 
 		//-------------------------------------------------------------------------------------
 		//DADOS
@@ -241,16 +256,17 @@ public:
 
 		//Criação e passagem de textura
 		//texture0 = new Texture("res/textures/wall.png", GL_TEXTURE_2D, 0);
-		program->send1i("texture0", obj->getFirstTextureUnit());
+		//program->send1i("texture0", obj1->getFirstTextureUnit());
 		//---------------------------------------------------------------------------------------	
-		program->send1i("typeDraw", obj->getFirstTypeDraw());
+		/*program->send1i("typeDraw", obj1->getFirstTypeDraw());
+		program->sendVec3fv("color", glm::vec3(0.f, 0.f, 0.f));*/
 
 
 		//---------------------------------------------------------------------------------------
 		//PASSAGEM DAS MATRIZES
 		//Passagem da model matrix
-		glm::mat4 modelMatrix(1.0f);
-		program->sendMat4fv("modelMatrix", modelMatrix);
+		/*glm::mat4 modelMatrix(1.0f);
+		program->sendMat4fv("modelMatrix", modelMatrix);*/
 
 		//Passagem da view matrix
 		glm::mat4 viewMatrix(1.0f);
@@ -274,18 +290,8 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		program->use();
-
-		obj->draw();
-		//texture0->bind();
-
-		////obj->draw(program);
-		//glBindVertexArray(m_vaoID);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
-		//glBindVertexArray(0);
-
-		//program->send1i("typeDraw", 1);
-		//program->sendMat4fv("modelMatrix", obj->getModelMatrix());
+		obj1->draw();
+		obj2->draw();
 		//---------------------------------------------------------
 		//Lógica do tempo
 		static float lastFrame = glfwGetTime();

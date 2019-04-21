@@ -60,6 +60,14 @@ public:
 		return this->typeDraw;
 	}
 
+	void enableColor() {
+		this->typeDraw = typeDraw + 1;
+	}
+
+	void disableColor() {
+		this->typeDraw = typeDraw - 1;
+	}
+
 	void createVAOandTexture() {
 		glGenVertexArrays(1, &this->vaoID);
 		glBindVertexArray(this->vaoID);
@@ -80,11 +88,6 @@ public:
 		VertexBuffer* vbo_texture = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		
-		vector<glm::vec3> vec_colors = generateColorData();
-		VertexBuffer* vbo_color = new VertexBuffer(vec_colors.size() * sizeof(glm::vec2), vec_colors.data());
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		unbindVAO();
 
@@ -109,11 +112,14 @@ public:
 	}
 
 	void draw(Program* program) {
+		program->send1i("texture0", this->texture->getTextureUnit());
+		program->send1i("typeDraw", this->typeDraw);
+
 		texture->bind();
 
+		program->use();
 		bindVAO();
 		glDrawArrays(GL_TRIANGLES, 0, this->numberOfVertices);
 		unbindVAO();
-		program->send1i("typeDraw", this->typeDraw);
 	}
 };

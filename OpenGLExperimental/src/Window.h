@@ -84,10 +84,13 @@ public:
 		std::cout << "OpenGL (Versao suportada): " << version << std::endl;
 
 		//habilita o corte de faces; corta as faces de tras; define quais são as faces frontais
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glFrontFace(GL_CW);
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
 
 		//Necessário para glfwGetUserPointer() funcionar
 		glfwSetWindowUserPointer(m_Window, this);
