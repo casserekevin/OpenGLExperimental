@@ -18,9 +18,8 @@
 #include "LightFunction.h"
 #include "VertexBuffer.h"
 #include "Texture.h"
-#include "OBJClasses/OBJ.h"
-#include "OBJClasses/Mesh.h"
 
+#include "OBJClasses/OBJ.h"
 #include "OBJClasses/Reader/MeshReader.h"
 
 
@@ -33,12 +32,14 @@ private:
 	int m_height;
 
 	Program* program;
+	OBJ* obj;
 
 	unsigned int m_vaoID;
 
 	VertexBuffer* m_vboPositions;
-	VertexBuffer* m_vboColors;
+	VertexBuffer* m_vboNormals;
 	VertexBuffer* m_vboTextures;
+	VertexBuffer* m_vboColors;
 	Texture* texture0;
 
 	//-------------------------------------------------------
@@ -157,64 +158,92 @@ public:
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
-		Mesh* mesh = meshReader->loadMesh("res/obj/cube.obj");
-		OBJ* obj = new OBJ(mesh);
+		Mesh* mesh = meshReader->loadMesh("res/obj/cube2.obj");
+		obj = new OBJ(mesh, program);
 
 		//-------------------------------------------------------------------------------------
 		//DADOS
 		//Vertex Array Object
-		glGenVertexArrays(1, &m_vaoID);
-		glBindVertexArray(m_vaoID);
+		//glGenVertexArrays(1, &m_vaoID);
+		//glBindVertexArray(m_vaoID);
 
-		//Vertex Buffer Object das Posiçoes
-		std::vector<glm::vec3> vec_positions = {
-			glm::vec3(0.0f, 0.5f, 0.0f),
-			glm::vec3(0.5f, -0.5f, 0.0f),
-			glm::vec3(-0.5f, -0.5f, 0.0f),
-			glm::vec3(0.0f, 0.5f, 0.0f),
-			glm::vec3(-0.5f, -0.5f, 0.0f),
-			glm::vec3(-1.0f, 0.5f, 0.0f)
-		};
+		////Vertex Buffer Object das Posiçoes
+		//std::vector<glm::vec3> vec_positions = {
+		//	glm::vec3(0.0f, 0.5f, 0.0f),
+		//	glm::vec3(0.5f, -0.5f, 0.0f),
+		//	glm::vec3(-0.5f, -0.5f, 0.0f),
+		//	glm::vec3(0.0f, 0.5f, 0.0f),
+		//	glm::vec3(-0.5f, -0.5f, 0.0f),
+		//	glm::vec3(-1.0f, 0.5f, 0.0f)
+		//};
 
-		m_vboPositions = new VertexBuffer(vec_positions.size() * sizeof(glm::vec3), vec_positions.data());
+		//m_vboPositions = new VertexBuffer(vec_positions.size() * sizeof(glm::vec3), vec_positions.data());
 
-		glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const void*)0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		//glEnableVertexAttribArray(0);
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-		//Vertex Buffer Object das Cores
-		std::vector<glm::vec3> vec_colors = {
-			glm::vec3(1.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f),
-			glm::vec3(0.0f, 0.0f, 1.0f),
-			glm::vec3(1.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f),
-			glm::vec3(0.0f, 0.0f, 1.0f)
-		};
-		m_vboColors = new VertexBuffer(vec_colors.size() * sizeof(glm::vec3), vec_colors.data());
+		//std::vector<glm::vec3> vec_normals = {
+		//	glm::vec3(1.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f),
+		//	glm::vec3(0.0f, 0.0f, 1.0f),
+		//	glm::vec3(1.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f),
+		//	glm::vec3(0.0f, 0.0f, 1.0f)
+		//};
+		//m_vboNormals = new VertexBuffer(vec_normals.size() * sizeof(glm::vec3), vec_normals.data());
 
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		//glEnableVertexAttribArray(1);
+		//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-		//Vertex Buffer Object das texturas
-		std::vector<glm::vec2> vec_textures = {
-			glm::vec2(0.0f, 0.0f),
-			glm::vec2(1.0f, 0.0f),
-			glm::vec2(0.5f, 1.0f),
-			glm::vec2(0.0f, 0.0f),
-			glm::vec2(1.0f, 0.0f),
-			glm::vec2(0.5f, 1.0f)
-		};
-		m_vboTextures = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
+		//std::vector<glm::vec2> vec_textures = {
+		//	glm::vec2(0.5f, 1.0f),
+		//	glm::vec2(1.0f, 0.0f),
+		//	glm::vec2(0.0f, 0.0f),
+		//	glm::vec2(0.5f, 1.0f),
+		//	glm::vec2(1.0f, 0.0f),
+		//	glm::vec2(0.0f, 0.0f)
+		//};
+		///*std::vector<glm::vec2> vec_textures = {
+		//	glm::vec2(-1.f, -1.f),
+		//	glm::vec2(-1.f, -1.f),
+		//	glm::vec2(-1.f, -1.f),
+		//	glm::vec2(-1.f, -1.f),
+		//	glm::vec2(-1.f, -1.f),
+		//	glm::vec2(-1.f, -1.f)
+		//};*/
+		//m_vboTextures = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
 
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		//glEnableVertexAttribArray(2);
+		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+		//std::vector<glm::vec3> vec_colors = {
+		//	glm::vec3(1.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f),
+		//	glm::vec3(0.0f, 0.0f, 1.0f),
+		//	glm::vec3(1.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f),
+		//	glm::vec3(0.0f, 0.0f, 1.0f)
+		//};
+		///*std::vector<glm::vec3> vec_colors = {
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//	glm::vec3(-2.f, -2.f, -2.f),
+		//};*/
+		//m_vboColors = new VertexBuffer(vec_colors.size() * sizeof(glm::vec3), vec_colors.data());
+
+		//glEnableVertexAttribArray(3);
+		//glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		//glBindVertexArray(0);
 
 
 		//Criação e passagem de textura
-		texture0 = new Texture("res/textures/wall.png", GL_TEXTURE_2D, 0);
-		program->send1i("texture0", texture0->getTextureUnit());
+		//texture0 = new Texture("res/textures/wall.png", GL_TEXTURE_2D, 0);
+		program->send1i("texture0", obj->getFirstTextureUnit());
 		//---------------------------------------------------------------------------------------	
+		program->send1i("typeDraw", obj->getFirstTypeDraw());
 
 
 		//---------------------------------------------------------------------------------------
@@ -238,12 +267,6 @@ public:
 		m_bottomPosition = positions[4];
 		m_rightPosition = positions[3];
 		m_leftPosition = positions[6];*/
-		
-		m_topPosition = vec_positions.at(0).y;
-		m_bottomPosition = vec_positions.at(1).y;
-		m_rightPosition = vec_positions.at(1).x;
-		m_leftPosition = vec_positions.at(2).x;
-
 	}
 
 	void update() override {
@@ -252,11 +275,17 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		program->use();
-		texture0->bind();
 
+		obj->draw();
+		//texture0->bind();
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		////obj->draw(program);
+		//glBindVertexArray(m_vaoID);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		//glBindVertexArray(0);
 
+		//program->send1i("typeDraw", 1);
+		//program->sendMat4fv("modelMatrix", obj->getModelMatrix());
 		//---------------------------------------------------------
 		//Lógica do tempo
 		static float lastFrame = glfwGetTime();
@@ -265,38 +294,38 @@ public:
 		lastFrame = currentFrame;
 
 
-		Normal normal;
-		if ((m_rightPosition + m_posicaoAtualX) >= 1.0f) {
-			normal.x = -1;
-			normal.y = 0;
-			LightReflection(normal, m_speed);
-		}
-		else if ((m_leftPosition + m_posicaoAtualX) <= -1.0f) {
-			normal.x = 1;
-			normal.y = 0;
-			LightReflection(normal, m_speed);
-		}
-		if ((m_topPosition + m_posicaoAtualY) >= 1.0f) {
-			normal.x = 0;
-			normal.y = -1;
-			LightReflection(normal, m_speed);
-		}
-		else if ((m_bottomPosition + m_posicaoAtualY) <= -1.0f) {
-			normal.x = 0;
-			normal.y = -1;
-			LightReflection(normal, m_speed);
-		}
+		//Normal normal;
+		//if ((m_rightPosition + m_posicaoAtualX) >= 1.0f) {
+		//	normal.x = -1;
+		//	normal.y = 0;
+		//	LightReflection(normal, m_speed);
+		//}
+		//else if ((m_leftPosition + m_posicaoAtualX) <= -1.0f) {
+		//	normal.x = 1;
+		//	normal.y = 0;
+		//	LightReflection(normal, m_speed);
+		//}
+		//if ((m_topPosition + m_posicaoAtualY) >= 1.0f) {
+		//	normal.x = 0;
+		//	normal.y = -1;
+		//	LightReflection(normal, m_speed);
+		//}
+		//else if ((m_bottomPosition + m_posicaoAtualY) <= -1.0f) {
+		//	normal.x = 0;
+		//	normal.y = -1;
+		//	LightReflection(normal, m_speed);
+		//}
 
-		std::cout << "Posicao Atual X: " << m_posicaoAtualX << std::endl;
-		std::cout << "Posicao Atual Y: " << m_posicaoAtualY << std::endl;
-		std::cout << "Width: " << m_width << " Height: " << m_height << std::endl;
-		std::cout << "------------------------------------------------" << std::endl;
-		//-------------------------------------------------------------------------------
+		//std::cout << "Posicao Atual X: " << m_posicaoAtualX << std::endl;
+		//std::cout << "Posicao Atual Y: " << m_posicaoAtualY << std::endl;
+		//std::cout << "Width: " << m_width << " Height: " << m_height << std::endl;
+		//std::cout << "------------------------------------------------" << std::endl;
+		////-------------------------------------------------------------------------------
 
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed.x + m_posicaoAtualX, m_deltaTime * m_speed.y + m_posicaoAtualY, 0.0f));
-		program->sendMat4fv("modelMatrix", modelMatrix);
-		m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
-		m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
+		//glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed.x + m_posicaoAtualX, m_deltaTime * m_speed.y + m_posicaoAtualY, 0.0f));
+		//program->sendMat4fv("modelMatrix", modelMatrix);
+		//m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
+		//m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
 
 		glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		program->sendMat4fv("viewMatrix", viewMatrix);

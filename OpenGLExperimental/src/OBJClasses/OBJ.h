@@ -4,10 +4,12 @@
 #include <GLM/gtc/matrix_transform.hpp>
 
 #include "Mesh.h"
+#include "../Program.h"
 
 class OBJ {
 private:
 	Mesh* m_mesh = nullptr;
+	Program* program = nullptr;
 
 	glm::vec3 position;
 	glm::vec3 rotation;
@@ -18,7 +20,7 @@ private:
 	//functions
 	void initModelMatrix() {
 		
-		this->position = glm::vec3(0.f);
+		this->position = glm::vec3(1.f, 0.f, 0.f);
 		this->rotation = glm::vec3(0.f);
 		this->scale = glm::vec3(1.f);
 
@@ -32,9 +34,11 @@ private:
 	
 public:
 
-	OBJ(Mesh* mesh) {
+	OBJ(Mesh* mesh, Program* program) {
 		this->m_mesh = mesh;
 		this->m_mesh->setObjThatIsInserted(this);
+
+		this->program = program;
 
 		initModelMatrix();
 	}
@@ -44,5 +48,22 @@ public:
 	}
 	Mesh* getMesh() {
 		return m_mesh;
+	}
+
+	glm::mat4 getModelMatrix() {
+		return modelMatrix;
+	}
+
+	GLint getFirstTextureUnit() {
+		return m_mesh->getFirstTextureUnit();
+	}
+
+	int getFirstTypeDraw() {
+		return m_mesh->getFirstTypeDraw();
+	}
+
+	void draw() {
+		m_mesh->draw(this->program);
+		program->sendMat4fv("modelMatrix", this->modelMatrix);
 	}
 };

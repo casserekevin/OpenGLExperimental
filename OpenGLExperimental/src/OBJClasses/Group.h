@@ -3,23 +3,31 @@
 #include <GLEW/glew.h>
 #include <GLM/glm.hpp>
 
-#include <vector>
 #include <string>
+#include <sstream>
 
 #include "Face.h"
+#include "../Program.h"
 #include "../VertexBuffer.h"
+#include "../Texture.h"
 
 class Mesh;
 
 using std::vector;
 class Group {
 private:
-	Mesh* meshThatIsInserted = nullptr;
+	Mesh* meshThatIsInserted;
 
 	vector<Face*> m_faces;
-	std::string m_nome;
+	std::string pathFileTexture;
 
 	GLuint vaoID;
+
+	int numberOfVertices;
+	
+	int typeDraw;
+
+	Texture* texture = nullptr;
 
 	//functions
 	vector<glm::vec3> generatePositionData();
@@ -27,6 +35,8 @@ private:
 	vector<glm::vec3> generateNormalData();
 
 	vector<glm::vec2> generateTextureData();
+
+	vector<glm::vec3> generateColorData();
 
 	bool hasTexture();
 public:
@@ -38,11 +48,19 @@ public:
 		m_faces.push_back(face);
 	}
 
-	void setNome(std::string nome) {
-		m_nome = nome;
+	void setPathFileTexture(std::string pathFile) {
+		pathFileTexture = pathFile;
 	}
 
-	void createVAO() {
+	GLint getTextureUnit() {
+		return this->texture->getTextureUnit();
+	}
+
+	int getTypeDraw() {
+		return this->typeDraw;
+	}
+
+	void createVAOandTexture() {
 		glGenVertexArrays(1, &this->vaoID);
 		glBindVertexArray(this->vaoID);
 
@@ -51,19 +69,35 @@ public:
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
+		this->numberOfVertices = vec_positions.size();
+
 		vector<glm::vec3> vec_normals = generateNormalData();
 		VertexBuffer* vbo_normal = new VertexBuffer(vec_normals.size() * sizeof(glm::vec3), vec_normals.data());
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-		if (hasTexture()) {
-			vector<glm::vec2> vec_textures = generateTextureData();
-			VertexBuffer* vbo_texture = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		}
+		vector<glm::vec2> vec_textures = generateTextureData();
+		VertexBuffer* vbo_texture = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		
+		vector<glm::vec3> vec_colors = generateColorData();
+		VertexBuffer* vbo_color = new VertexBuffer(vec_colors.size() * sizeof(glm::vec2), vec_colors.data());
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		unbindVAO();
+
+		if (this->pathFileTexture == "\"\"") {
+			texture = new Texture("res/textures/null.png", GL_TEXTURE_2D, 0);
+		}
+		else {
+			std::stringstream ss;
+			ss << "res/textures/" << this->pathFileTexture;
+			this->pathFileTexture = ss.str();
+			texture = new Texture(this->pathFileTexture.c_str(), GL_TEXTURE_2D, 0);
+		}
+		
 	}
 
 	void bindVAO() {
@@ -72,5 +106,14 @@ public:
 
 	void unbindVAO() {
 		glBindVertexArray(0);
+	}
+
+	void draw(Program* program) {
+		texture->bind();
+
+		bindVAO();
+		glDrawArrays(GL_TRIANGLES, 0, this->numberOfVertices);
+		unbindVAO();
+		program->send1i("typeDraw", this->typeDraw);
 	}
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Group.h"
 #include "Mesh.h"
 
@@ -23,15 +25,36 @@ vector<glm::vec3> Group::generateNormalData() {
 
 vector<glm::vec2> Group::generateTextureData() {
 	vector<glm::vec2> vector;
+	if (hasTexture()) {
+		for (Face* face : m_faces) {
+			for (int i = 0; i < face->getSizeOfFace(); i++) {
+				vector.push_back(*(this->meshThatIsInserted->getTextureAt(face->getIndexTextureAt(i))));
+			}
+		}
+		typeDraw = 1;
+	}
+	else {
+		for (Face* face : m_faces) {
+			for (int i = 0; i < face->getSizeOfFace(); i++) {
+				vector.push_back(glm::vec2(-1.f, -1.f));
+			}
+		}
+		typeDraw = 3;
+	}
+	return vector;
+}
+
+vector<glm::vec3> Group::generateColorData() {
+	vector<glm::vec3> vector;
 	for (Face* face : m_faces) {
 		for (int i = 0; i < face->getSizeOfFace(); i++) {
-			vector.push_back(*(this->meshThatIsInserted->getTextureAt(face->getIndexTextureAt(i))));
+			vector.push_back(glm::vec3(-1.f, -1.f, -1.f));
 		}
 	}
 	return vector;
 }
 
 bool Group::hasTexture() {
-	return this->meshThatIsInserted->hasTexture();
+	return this->meshThatIsInserted->isTexture();
 }
 

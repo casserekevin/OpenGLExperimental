@@ -1,8 +1,12 @@
 #pragma once
 
 #include <GLEW/glew.h>
+#include <GLM/gtc/type_ptr.hpp>
+
+#include <iostream>
 
 #include "ShaderReader.h";
+
 
 class Program {
 private:
@@ -21,8 +25,9 @@ private:
 		std::stringstream vertexSourceStream;
 		std::stringstream fragmentSourceStream;
 
-		loadFile(vertexFilePath, vertexSourceStream);
-		loadFile(fragmentFilePath, fragmentSourceStream);
+		ShaderReader* sh = new ShaderReader();
+		sh->read(vertexFilePath, vertexSourceStream);
+		sh->read(fragmentFilePath, fragmentSourceStream);
 
 		vertexSource = vertexSourceStream.str();
 		fragmentSource = fragmentSourceStream.str();
@@ -31,7 +36,7 @@ private:
 		if (geometryFilePath != "") {
 			std::stringstream geometrySourceStream;
 
-			loadFile(geometryFilePath, geometrySourceStream);
+			sh->read(geometryFilePath, geometrySourceStream);
 
 			geometrySource = geometrySourceStream.str();
 		}

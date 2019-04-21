@@ -2,14 +2,13 @@
 
 #include <GLM/glm.hpp>
 
-#include <vector>
+
 #include <iostream>
 
 #include "Group.h"
 
 class OBJ;
 
-using std::vector;
 class Mesh {
 private:
 	OBJ* objThatIsInserted = nullptr;
@@ -77,8 +76,23 @@ public:
 		return m_textures.at(index);
 	}
 
-	bool hasTexture(){
+	bool isTexture(){
 		return (this->m_textures.size() == 0)? false : true;
 	}
+	
+	GLint getFirstTextureUnit() {
+		return this->m_groups.at(0)->getTextureUnit();
+	}
+
+	int getFirstTypeDraw() {
+		return this->m_groups.at(0)->getTypeDraw();
+	}
+
+	void draw(Program* program) {
+		for (Group* g : this->m_groups) {
+			g->draw(program);
+		}
+	}
+
 };
 

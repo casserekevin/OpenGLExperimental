@@ -62,11 +62,11 @@ public:
 					mesh->addNormal(x, y, z);
 				}
 				else if (s_temp == "g") {
-					string s_group;
-					ss_line >> s_group;
+					string s_pathFileTexture;
+					ss_line >> s_pathFileTexture;
 
 					Group* grupo = new Group(mesh);
-					grupo->setNome(s_group);
+					grupo->setPathFileTexture(s_pathFileTexture);
 					mesh->addGroup(grupo);
 				}
 				else if (s_temp == "f") {
@@ -123,7 +123,7 @@ public:
 				}
 			}
 			for (Group* g : mesh->getGroups()) {
-				g->createVAO();
+				g->createVAOandTexture();
 			}
 			return mesh;
 		}
