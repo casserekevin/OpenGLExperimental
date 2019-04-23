@@ -17,15 +17,11 @@ private:
 
 	glm::mat4 modelMatrix;
 
-	glm::vec3 color;
+	glm::vec3 color = glm::vec3(1.f, 0.f, 0.f);
 
-	//functions
-	void initModelMatrix() {
-		
-		this->position = glm::vec3(1.f, 0.f, 0.f);
-		this->rotation = glm::vec3(0.f);
-		this->scale = glm::vec3(1.f);
+	bool selected;
 
+	void calculateModelMatrix() {
 		this->modelMatrix = glm::mat4(1.f);
 		this->modelMatrix = glm::translate(this->modelMatrix, this->position);
 		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1.f, 0.f, 0.f));
@@ -33,9 +29,22 @@ private:
 		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0.f, 0.f, 1.f));
 		this->modelMatrix = glm::scale(this->modelMatrix, this->scale);
 	}
+	//functions
+	void initModelMatrix() {
+		
+		this->position = glm::vec3(0.f, 0.f, 0.f);
+		this->rotation = glm::vec3(0.f);
+		this->scale = glm::vec3(1.f);
 
-	void initColor() {
-		this->color = glm::vec3(0.f, 0.f, 0.f);
+		calculateModelMatrix();
+	}
+
+	void addColor() {
+		this->m_mesh->applyColor();
+	}
+
+	void removeColor() {
+		this->m_mesh->disapplyColor();
 	}
 	
 public:
@@ -45,9 +54,10 @@ public:
 		this->m_mesh->setObjThatIsInserted(this);
 
 		this->program = program;
+		this->selected = false;
+
 
 		initModelMatrix();
-		initColor();
 	}
 
 	void setMesh(Mesh* mesh) {
@@ -55,6 +65,24 @@ public:
 	}
 	Mesh* getMesh() {
 		return m_mesh;
+	}
+
+	void setPosition(glm::vec3 position) {
+		this->position = position;
+
+		calculateModelMatrix();
+	}
+
+	void setRotation(glm::vec3 rotation) {
+		this->rotation = rotation;
+
+		calculateModelMatrix();
+	}
+
+	void setScale(glm::vec3 scale) {
+		this->scale = scale;
+
+		calculateModelMatrix();
 	}
 
 	glm::mat4 getModelMatrix() {
@@ -69,14 +97,18 @@ public:
 		return m_mesh->getFirstTypeDraw();
 	}
 
-	void addColor(glm::vec3 color) {
-		this->color = color;
-		this->m_mesh->applyColor();
+	void select() {
+		if (this->selected) {
+			this->removeColor();
+			this->selected = false;
+		}
+		else {
+			this->addColor();
+			this->selected = true;
+		}
 	}
 
-	void removeColor() {
-		this->m_mesh->disapplyColor();
-	}
+	
 
 	void draw() {
 		program->sendMat4fv("modelMatrix", this->modelMatrix);

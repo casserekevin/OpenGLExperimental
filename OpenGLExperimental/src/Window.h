@@ -44,6 +44,13 @@ private:
 	void mouseZoom(double xoffset, double yoffset) {
 		m_scene->processMouseZoomInput(xoffset, yoffset);
 	}
+	inline static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mods) {
+		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		window->keyboard(key, scancode, action, mods);
+	}
+	void keyboard(int key, int scancode, int action, int mods) {
+		m_scene->processKeyboardInput(key, scancode, action, mods);
+	}
 
 
 
@@ -106,6 +113,8 @@ public:
 		glfwSetCursorPosCallback(m_Window, mouseMovementCallback);
 		//Mouse scroll callback
 		glfwSetScrollCallback(m_Window, mouseZoomCallback);
+		//Keyboard callback
+		glfwSetKeyCallback(m_Window, keyboardCallback);
 	}
 	
 	//getters
@@ -126,7 +135,7 @@ public:
 	}
 
 	void update() {
-		m_scene->processKeyboardInput();
+		m_scene->processKeyboard();
 		glfwPollEvents();
 
 		if (m_scene) {

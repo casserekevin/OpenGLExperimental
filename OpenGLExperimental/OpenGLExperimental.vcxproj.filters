@@ -18,10 +18,14 @@
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />
     <ClInclude Include="src\OBJClasses\Group.h" />
+    <ClInclude Include="src\Configuration.h" />
+    <ClInclude Include="src\OBJData.h" />
+    <ClInclude Include="src\OBJClasses\Reader\ConfigurationReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\fragment.shader" />
     <None Include="res\shaders\vertex.shader" />
+    <None Include="res\cfg\configuration.cfg" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OBJClasses\Group.cpp" />

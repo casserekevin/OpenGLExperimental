@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\LightFunction.h" />
     <ClInclude Include="src\Normal.h" />
     <ClInclude Include="src\OBJClasses\Face.h" />
@@ -161,7 +162,9 @@
     <ClInclude Include="src\OBJClasses\Group.h" />
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />
+    <ClInclude Include="src\OBJClasses\Reader\ConfigurationReader.h" />
     <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
+    <ClInclude Include="src\OBJData.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
     <ClInclude Include="src\MyScene.h" />
     <ClInclude Include="src\Program.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\cfg\configuration.cfg" />
     <None Include="res\shaders\fragment.shader" />
     <None Include="res\shaders\vertex.shader" />
   </ItemGroup>

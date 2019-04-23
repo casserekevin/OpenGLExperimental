@@ -18,6 +18,7 @@
 #include "LightFunction.h"
 #include "VertexBuffer.h"
 #include "Texture.h"
+#include "Configuration.h"
 
 #include "OBJClasses/OBJ.h"
 #include "OBJClasses/Reader/MeshReader.h"
@@ -26,22 +27,15 @@
 class MyScene : public Scene{
 
 private:
+	Configuration* configuration;
+
 	GLFWwindow* m_windowThatIsInserted;
 	
 	int m_width;
 	int m_height;
 
 	Program* program;
-	OBJ* obj1;
-	OBJ* obj2;
-
-	unsigned int m_vaoID;
-
-	VertexBuffer* m_vboPositions;
-	VertexBuffer* m_vboNormals;
-	VertexBuffer* m_vboTextures;
-	VertexBuffer* m_vboColors;
-	Texture* texture0;
+	vector<OBJ* > objs;
 
 	//-------------------------------------------------------
 	//DADOS 
@@ -59,9 +53,10 @@ private:
 	float m_leftPosition;
 	float m_rightPosition;
 	
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 2.0f); //camera
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraPos; //camera
+	glm::vec3 cameraFront;
+	glm::vec3 cameraUp;
+
 	bool m_firstMouse = true;
 	float m_yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
 	float m_pitch = 0.0f;
@@ -74,38 +69,39 @@ private:
 	int clickTecla = 0;
 
 	//Funcoes:
-	void processKeyboardInput() override {
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_1) == GLFW_PRESS) {
-			if (this->clickTecla == 0) {
-				obj1->addColor(glm::vec3(1.f, 0.f, 0.f));
-				clickTecla++;
-			}
-			else {
-				obj1->removeColor();
-				clickTecla = 0;
-			}
-		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-			glfwSetWindowShouldClose(m_windowThatIsInserted, true);
-		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_M) == GLFW_PRESS) {
-			glfwSetInputMode(m_windowThatIsInserted, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_N) == GLFW_PRESS) {
-			glfwSetInputMode(m_windowThatIsInserted, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		}
-		float cameraSpeed = 2.5 * m_deltaTime;
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_W) == GLFW_PRESS) {
+	void processKeyboard() {
+		float cameraSpeed = 4.0 * m_deltaTime;
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_UP) == GLFW_PRESS) {
 			cameraPos += cameraSpeed * cameraFront;
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_S) == GLFW_PRESS) {
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_DOWN) == GLFW_PRESS) {
 			cameraPos -= cameraSpeed * cameraFront;
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_A) == GLFW_PRESS) {
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_LEFT) == GLFW_PRESS) {
 			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_D) == GLFW_PRESS) {
+		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		}
+	}
+
+	void processKeyboardInput(int key, int scancode, int action, int mods) override {
+		if (key == GLFW_KEY_ESCAPE) {
+			switch (action) {
+				case GLFW_PRESS:
+					glfwSetWindowShouldClose(m_windowThatIsInserted, true);
+					
+					break;
+			}
+		}
+
+		if (key == GLFW_KEY_1) {
+			switch (action) {
+				case GLFW_PRESS:
+					objs.at(0)->select();
+
+					break;
+			}
 		}
 	}
 	void processMouseMovementInput(double xpos, double ypos) override {
@@ -166,108 +162,27 @@ private:
 public:
 	//CONSTRUTORES
 	MyScene(){}
-	MyScene(int width, int height) : m_width(width), m_height(height) {
+	MyScene(int width, int height, Configuration* configuration) : m_width(width), m_height(height), configuration(configuration) {
+		this->cameraPos = this->configuration->getCameraPos();
+		this->cameraFront = this->configuration->getCameraFront();
+		this->cameraUp = this->configuration->getCameraUp();
+
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
-		Mesh* mesh1 = meshReader->loadMesh("res/obj/cube2.obj");
-		obj1 = new OBJ(mesh1, program);
-		Mesh* mesh2 = meshReader->loadMesh("res/obj/cube.obj");
-		obj2 = new OBJ(mesh2, program);
-
-
-		//-------------------------------------------------------------------------------------
-		//DADOS
-		//Vertex Array Object
-		//glGenVertexArrays(1, &m_vaoID);
-		//glBindVertexArray(m_vaoID);
-
-		////Vertex Buffer Object das Posiçoes
-		//std::vector<glm::vec3> vec_positions = {
-		//	glm::vec3(0.0f, 0.5f, 0.0f),
-		//	glm::vec3(0.5f, -0.5f, 0.0f),
-		//	glm::vec3(-0.5f, -0.5f, 0.0f),
-		//	glm::vec3(0.0f, 0.5f, 0.0f),
-		//	glm::vec3(-0.5f, -0.5f, 0.0f),
-		//	glm::vec3(-1.0f, 0.5f, 0.0f)
-		//};
-
-		//m_vboPositions = new VertexBuffer(vec_positions.size() * sizeof(glm::vec3), vec_positions.data());
-
-		//glEnableVertexAttribArray(0);
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		//std::vector<glm::vec3> vec_normals = {
-		//	glm::vec3(1.0f, 0.0f, 0.0f),
-		//	glm::vec3(0.0f, 1.0f, 0.0f),
-		//	glm::vec3(0.0f, 0.0f, 1.0f),
-		//	glm::vec3(1.0f, 0.0f, 0.0f),
-		//	glm::vec3(0.0f, 1.0f, 0.0f),
-		//	glm::vec3(0.0f, 0.0f, 1.0f)
-		//};
-		//m_vboNormals = new VertexBuffer(vec_normals.size() * sizeof(glm::vec3), vec_normals.data());
-
-		//glEnableVertexAttribArray(1);
-		//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		//std::vector<glm::vec2> vec_textures = {
-		//	glm::vec2(0.5f, 1.0f),
-		//	glm::vec2(1.0f, 0.0f),
-		//	glm::vec2(0.0f, 0.0f),
-		//	glm::vec2(0.5f, 1.0f),
-		//	glm::vec2(1.0f, 0.0f),
-		//	glm::vec2(0.0f, 0.0f)
-		//};
-		///*std::vector<glm::vec2> vec_textures = {
-		//	glm::vec2(-1.f, -1.f),
-		//	glm::vec2(-1.f, -1.f),
-		//	glm::vec2(-1.f, -1.f),
-		//	glm::vec2(-1.f, -1.f),
-		//	glm::vec2(-1.f, -1.f),
-		//	glm::vec2(-1.f, -1.f)
-		//};*/
-		//m_vboTextures = new VertexBuffer(vec_textures.size() * sizeof(glm::vec2), vec_textures.data());
-
-		//glEnableVertexAttribArray(2);
-		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		//std::vector<glm::vec3> vec_colors = {
-		//	glm::vec3(1.0f, 0.0f, 0.0f),
-		//	glm::vec3(0.0f, 1.0f, 0.0f),
-		//	glm::vec3(0.0f, 0.0f, 1.0f),
-		//	glm::vec3(1.0f, 0.0f, 0.0f),
-		//	glm::vec3(0.0f, 1.0f, 0.0f),
-		//	glm::vec3(0.0f, 0.0f, 1.0f)
-		//};
-		///*std::vector<glm::vec3> vec_colors = {
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//	glm::vec3(-2.f, -2.f, -2.f),
-		//};*/
-		//m_vboColors = new VertexBuffer(vec_colors.size() * sizeof(glm::vec3), vec_colors.data());
-
-		//glEnableVertexAttribArray(3);
-		//glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		//glBindVertexArray(0);
-
-
-		//Criação e passagem de textura
-		//texture0 = new Texture("res/textures/wall.png", GL_TEXTURE_2D, 0);
-		//program->send1i("texture0", obj1->getFirstTextureUnit());
-		//---------------------------------------------------------------------------------------	
-		/*program->send1i("typeDraw", obj1->getFirstTypeDraw());
-		program->sendVec3fv("color", glm::vec3(0.f, 0.f, 0.f));*/
-
+		for (int i = 0; i < this->configuration->numberOfData(); i++) {
+			std::stringstream ss;
+			ss << "res/obj/" << this->configuration->getOBJDataAt(i)->getFilepath();
+			std::string pathfile = ss.str();
+			OBJ* obj = new OBJ(meshReader->loadMesh(pathfile), program);
+			obj->setPosition(this->configuration->getOBJDataAt(i)->getPosition());
+			obj->setRotation(this->configuration->getOBJDataAt(i)->getRotation());
+			obj->setScale(this->configuration->getOBJDataAt(i)->getScale());
+			objs.push_back(obj);
+		}
 
 		//---------------------------------------------------------------------------------------
 		//PASSAGEM DAS MATRIZES
-		//Passagem da model matrix
-		/*glm::mat4 modelMatrix(1.0f);
-		program->sendMat4fv("modelMatrix", modelMatrix);*/
-
 		//Passagem da view matrix
 		glm::mat4 viewMatrix(1.0f);
 		viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -290,8 +205,9 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		obj1->draw();
-		obj2->draw();
+		for (int i = 0; i < objs.size(); i++) {
+			objs.at(i)->draw();
+		}
 		//---------------------------------------------------------
 		//Lógica do tempo
 		static float lastFrame = glfwGetTime();
