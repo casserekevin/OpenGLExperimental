@@ -22,6 +22,6 @@ void main(){
 		fColorOut = vec4(0.33, 0.33, 0.33, 1);
 	}
 	else if (typeDraw == 4) {
-		fColorOut = vec4(color, 1);
+		fColorOut = vec4(color, 0.5);
 	}
 }

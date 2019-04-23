@@ -47,11 +47,6 @@ private:
 
 	float m_posicaoAtualX = 0.0f;
 	float m_posicaoAtualY = 0.0f;
-
-	float m_topPosition;
-	float m_bottomPosition;
-	float m_leftPosition;
-	float m_rightPosition;
 	
 	glm::vec3 cameraPos; //camera
 	glm::vec3 cameraFront;
@@ -66,7 +61,30 @@ private:
 	float m_fov = 45.0f;
 	//---------------------------------------------------------
 
-	int clickTecla = 0;
+	//Key mapping
+	bool is_SHIFT_down = false;
+	bool is_R_down = false;
+	bool is_S_down = false;
+	bool is_X_down = false;
+	bool is_Y_down = false;
+	bool is_Z_down = false;
+
+	void deselectAllMinus(int index) {
+		for (int i = 0; i < objs.size(); i++) {
+			if (i != index) {
+				objs.at(i)->unselect();
+			}
+		}
+	}
+
+	OBJ* searchFirstOBJSelected() {
+		for (OBJ* obj : objs) {
+			if (obj->isSelected()) {
+				return obj;
+			}
+		}
+		return nullptr;
+	}
 
 	//Funcoes:
 	void processKeyboard() {
@@ -96,16 +114,203 @@ private:
 		}
 
 		if (key == GLFW_KEY_1) {
-			switch (action) {
+			if (objs.size() > 0) {
+				switch (action) {
+					case GLFW_PRESS:
+						deselectAllMinus(0);
+						objs.at(0)->changeSelection();
+
+						break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_2) {
+			if (objs.size() > 1) {
+				switch (action) {
 				case GLFW_PRESS:
-					objs.at(0)->select();
+					deselectAllMinus(1);
+					objs.at(1)->changeSelection();
 
 					break;
+				}
+
 			}
+		}
+
+		if (key == GLFW_KEY_3) {
+			if (objs.size() > 2) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(2);
+					objs.at(2)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_4) {
+			if (objs.size() > 3) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(3);
+					objs.at(3)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_5) {
+			if (objs.size() > 4) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(4);
+					objs.at(4)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_6) {
+			if (objs.size() > 5) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(5);
+					objs.at(5)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_7) {
+			if (objs.size() > 6) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(6);
+					objs.at(6)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_8) {
+			if (objs.size() > 7) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(7);
+					objs.at(7)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (key == GLFW_KEY_9) {
+			if (objs.size() > 8) {
+				switch (action) {
+				case GLFW_PRESS:
+					deselectAllMinus(8);
+					objs.at(8)->changeSelection();
+
+					break;
+				}
+
+			}
+		}
+
+		if (!is_SHIFT_down && is_R_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->rotationYnegative();
+			}
+		}
+		if (is_SHIFT_down && is_R_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->rotationYpositive();
+			}
+		}
+		if (!is_SHIFT_down && is_S_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->scaleMinus();
+			}
+		}
+		if (is_SHIFT_down && is_S_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->scalePlus();
+			}
+		}
+		if (!is_SHIFT_down && is_X_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateXpositive();
+			}
+		}
+		if (is_SHIFT_down && is_X_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateXnegative();
+			}
+		}
+		if (!is_SHIFT_down && is_Y_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateYpositive();
+			}
+		}
+		if (is_SHIFT_down && is_Y_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateYnegative();
+			}
+		}
+		if (!is_SHIFT_down && is_Z_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateZpositive();
+			}
+		}
+		if (is_SHIFT_down && is_Z_down) {
+			OBJ* obj = searchFirstOBJSelected();
+			if (obj != nullptr) {
+				obj->translateZnegative();
+			}
+		}
+
+		if (key == GLFW_KEY_LEFT_SHIFT) {
+			is_SHIFT_down = action == GLFW_REPEAT;
+		}
+		if (key == GLFW_KEY_R) {
+			is_R_down = action == GLFW_REPEAT;
+		}
+		if (key == GLFW_KEY_S) {
+			is_S_down = action == GLFW_REPEAT;
+		}
+		if (key == GLFW_KEY_X) {
+			is_X_down = action == GLFW_REPEAT;
+		}
+		if (key == GLFW_KEY_Y) {
+			is_Y_down = action == GLFW_REPEAT;
+		}
+		if (key == GLFW_KEY_Z) {
+			is_Z_down = action == GLFW_REPEAT;
 		}
 	}
 	void processMouseMovementInput(double xpos, double ypos) override {
-		std::cout << "mouse X: " << xpos << " mouse Y: " << ypos << std::endl;
 		if (m_firstMouse)
 		{
 			m_lastX = xpos;
@@ -193,11 +398,6 @@ public:
 		projectionMatrix = glm::perspective(glm::radians(m_fov), (float)m_width / (float)m_height, 0.1f, 100.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
 		//---------------------------------------------------------------------------------------
-
-		/*m_topPosition = positions[1];
-		m_bottomPosition = positions[4];
-		m_rightPosition = positions[3];
-		m_leftPosition = positions[6];*/
 	}
 
 	void update() override {

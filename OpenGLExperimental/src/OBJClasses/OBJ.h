@@ -85,6 +85,53 @@ public:
 		calculateModelMatrix();
 	}
 
+	void translateXpositive() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(0.2f, 0.f, 0.f));
+	}
+	void translateXnegative() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(-0.2f, 0.f, 0.f));
+	}
+	void translateYpositive() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(0.f, 0.2f, 0.f));
+	}
+	void translateYnegative() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(0.f, -0.2f, 0.f));
+	}
+	void translateZpositive() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(0.f, 0.f, 0.2f));
+	}
+	void translateZnegative() {
+		this->modelMatrix = glm::translate(this->modelMatrix, glm::vec3(0.f, 0.f, -0.2f));
+	}
+	void rotationYpositive() {
+		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(2.f), glm::vec3(0.f, 1.f, 0.f));
+	}
+	void rotationYnegative() {
+		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-2.f), glm::vec3(0.f, 1.f, 0.f));
+	}
+	void scalePlus() {
+		if (this->modelMatrix[0][0] < 10.f) {
+			this->modelMatrix = glm::scale(this->modelMatrix, glm::vec3(1.05f));
+		}
+	}
+	void scaleMinus() {
+		if (this->modelMatrix[0][0] > 0.01f) {
+			this->modelMatrix = glm::scale(this->modelMatrix, glm::vec3(0.95f));
+		}
+	}
+
+
+	bool isSelected() {
+		return selected;
+	}
+
+	void unselect() {
+		if (isSelected()) {
+			this->removeColor();
+			this->selected = false;
+		}
+	}
+
 	glm::mat4 getModelMatrix() {
 		return modelMatrix;
 	}
@@ -97,7 +144,7 @@ public:
 		return m_mesh->getFirstTypeDraw();
 	}
 
-	void select() {
+	void changeSelection() {
 		if (this->selected) {
 			this->removeColor();
 			this->selected = false;
