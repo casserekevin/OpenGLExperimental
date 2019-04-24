@@ -119,8 +119,41 @@ public:
 							if (s_vertice1.at(1) == "") { // v//n
 
 							}
-							else {
+							else { //v/t/n
+								Group* group = mesh->getLastGroup();
 
+								Face* face1 = new Face();
+								face1->addIndexPosition(std::stoi(s_vertice1.at(0)) - 1);
+								face1->addIndexTexture(std::stoi(s_vertice1.at(1)) - 1);
+								face1->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
+
+								std::vector<string> s_vertice2 = split(vertice2, '/');
+								face1->addIndexPosition(std::stoi(s_vertice2.at(0)) - 1);
+								face1->addIndexTexture(std::stoi(s_vertice2.at(1)) - 1);
+								face1->addIndexNormal(std::stoi(s_vertice2.at(2)) - 1);
+
+								std::vector<string> s_vertice3 = split(vertice3, '/');
+								face1->addIndexPosition(std::stoi(s_vertice3.at(0)) - 1);
+								face1->addIndexTexture(std::stoi(s_vertice3.at(1)) - 1);
+								face1->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
+
+								group->addFace(face1);
+
+								Face* face2 = new Face();
+								face2->addIndexPosition(std::stoi(s_vertice1.at(0)) - 1);
+								face2->addIndexTexture(std::stoi(s_vertice1.at(1)) - 1);
+								face2->addIndexNormal(std::stoi(s_vertice1.at(2)) - 1);
+
+								face2->addIndexPosition(std::stoi(s_vertice3.at(0)) - 1);
+								face2->addIndexTexture(std::stoi(s_vertice3.at(1)) - 1);
+								face2->addIndexNormal(std::stoi(s_vertice3.at(2)) - 1);
+
+								std::vector<string> s_vertice4 = split(vertice4, '/');
+								face2->addIndexPosition(std::stoi(s_vertice4.at(0)) - 1);
+								face2->addIndexTexture(std::stoi(s_vertice4.at(1)) - 1);
+								face2->addIndexNormal(std::stoi(s_vertice4.at(2)) - 1);
+
+								group->addFace(face2);
 							}
 						}
 					}
