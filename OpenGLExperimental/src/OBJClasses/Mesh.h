@@ -79,6 +79,10 @@ public:
 	bool isTexture(){
 		return (this->m_textures.size() == 0)? false : true;
 	}
+
+	bool isNormal() {
+		return (this->m_normals.size() == 0) ? false : true;
+	}
 	
 	GLint getFirstTextureUnit() {
 		return this->m_groups.at(0)->getTextureUnit();

@@ -16,5 +16,5 @@ void main(){
 	
 	//passando para o fragment_shader
 	vertexNormal = vNormal;
-	vertexTextureCoordinate = vTextureCoordinate;
+	vertexTextureCoordinate = vec2(vTextureCoordinate.x, vTextureCoordinate.y * -1.f);
 }

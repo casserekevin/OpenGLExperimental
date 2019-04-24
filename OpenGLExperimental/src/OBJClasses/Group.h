@@ -39,6 +39,8 @@ private:
 	vector<glm::vec3> generateColorData();
 
 	bool hasTexture();
+
+	bool hasNormal();
 public:
 	Group(Mesh* mesh) {
 		this->meshThatIsInserted = mesh;
