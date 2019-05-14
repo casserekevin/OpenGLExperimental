@@ -6,28 +6,25 @@
 
 class OBJData {
 private:
-	std::string file;
+	std::string filepath;
 
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::vec3 scale;
 public:
 
-	OBJData(std::string file, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale): file(file), position(position), rotation(rotation), scale(scale) {}
+	OBJData(std::string filepath, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale): filepath(filepath), position(position), rotation(rotation), scale(scale) {}
 
-	std::string getFilepath() {
-		return this->file;
-	}
 
-	glm::vec3 getPosition() {
-		return this->position;
-	}
 
-	glm::vec3 getRotation() {
-		return this->rotation;
-	}
+	~OBJData() {}
 
-	glm::vec3 getScale() {
-		return this->scale;
-	}
+
+
+	//GETTERS
+	inline std::string getFilepath() { return this->filepath; }
+	
+	inline glm::vec3 getPosition() { return this->position; }
+	inline glm::vec3 getRotation() { return this->rotation; }
+	inline glm::vec3 getScale() { return this->scale; }
 };

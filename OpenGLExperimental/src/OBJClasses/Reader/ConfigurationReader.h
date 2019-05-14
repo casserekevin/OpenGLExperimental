@@ -13,30 +13,30 @@ private:
 public:
 	ConfigurationReader() {}
 
-	Configuration* loadConfiguration(std::string filepath) {
+	Configuration* read(std::string filepath) {
 		try {
 			Configuration* configuration = new Configuration();
 
-			std::ifstream file;
+			std::ifstream file(filepath);
 			file.exceptions(std::ifstream::badbit);
-			file.open(filepath);
 
 			while (!file.eof()) {
-				std::string s_line;
-				std::getline(file, s_line);
-				std::stringstream ss_line;
-				ss_line << s_line;
-				std::string s_temp;
-				ss_line >> s_temp;
+				std::string line;
+				std::getline(file, line);
 
-				if (s_temp == "v") { //viewport data
+				std::stringstream ss_line(line);
+
+				std::string command;
+				ss_line >> command;
+
+				if (command == "v") { //viewport data
 					int width, height;
 
 					ss_line >> width >> height;
 
 					configuration->addViewport(width, height);
 				}
-				else if (s_temp == "c") {
+				else if (command == "c") {
 					float camPosX, camPosY, camPosZ, camFrontX, camFrontY, camFrontZ, camUpX, camUpY, camUpZ;
 
 					ss_line >> camPosX >> camPosY >> camPosZ >> camFrontX >> camFrontY >> camFrontZ >> camUpX >> camUpY >> camUpZ;
@@ -44,7 +44,7 @@ public:
 					configuration->addCamera(glm::vec3(camPosX, camPosY, camPosZ), glm::vec3(camFrontX, camFrontY, camFrontZ), glm::vec3(camUpX, camUpY, camUpZ));
 				}
 
-				else if (s_temp == "o") {
+				else if (command == "o") {
 					std::string filePathOBJ;
 					float posX, posY, posZ, rotX, rotY, rotZ, scale;
 
@@ -53,6 +53,8 @@ public:
 					configuration->addOBJ(filePathOBJ, glm::vec3(posX, posY, posZ), glm::vec3(rotX, rotY, rotZ), glm::vec3(scale));
 				}
 			}
+			file.close();
+
 
 			return configuration;
 		}
@@ -61,4 +63,8 @@ public:
 			return nullptr;
 		}
 	}
+
+
+
+	~ConfigurationReader() {}
 };

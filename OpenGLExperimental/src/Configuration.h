@@ -5,15 +5,14 @@
 #include <vector>
 
 #include "OBJData.h"
+#include "Camera.h"
 
 class Configuration {
 private:
-	int widthViewport;
-	int heightViewport;
+	int width;
+	int height;
 
-	glm::vec3 cameraPosition;
-	glm::vec3 cameraFront;
-	glm::vec3 cameraUp;
+	Camera* camera;
 
 	std::vector<OBJData *> datas;
 
@@ -21,45 +20,28 @@ public:
 	Configuration() {}
 
 	void addViewport(int width, int height) {
-		this->widthViewport = width;
-		this->heightViewport = height;
+		this->width = width;
+		this->height = height;
 	}
 
 	void addCamera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp) {
-		this->cameraPosition = cameraPosition;
-		this->cameraFront = cameraFront;
-		this->cameraUp = cameraUp;
+		this->camera = new Camera(cameraPosition, cameraFront, cameraUp);
 	}
 
 	void addOBJ(std::string file, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
 		this->datas.push_back(new OBJData(file, position, rotation, scale));
 	}
 
-	int getWidthViewport() {
-		return widthViewport;
-	}
 
-	int getHeigthViewport() {
-		return heightViewport;
-	}
 
-	glm::vec3 getCameraPos() {
-		return this->cameraPosition;
-	}
+	~Configuration() {}
 
-	glm::vec3 getCameraFront() {
-		return this->cameraFront;
-	}
 
-	glm::vec3 getCameraUp() {
-		return this->cameraUp;
-	}
 
-	int numberOfData() {
-		return datas.size();
-	}
-
-	OBJData* getOBJDataAt(int index) {
-		return datas.at(index);
-	}
+	//GETTERS
+	inline int getWidth() { return this->width; }
+	inline int getHeigth() { return this->height; }
+	inline Camera* getCamera() { return this->camera; }
+	inline int getNumberOfData() { return this->datas.size(); }
+	inline OBJData* getOBJDataAt(int index) { return this->datas.at(index); }
 };

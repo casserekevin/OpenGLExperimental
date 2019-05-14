@@ -19,6 +19,7 @@
 #include "VertexBuffer.h"
 #include "Texture.h"
 #include "Configuration.h"
+#include "Camera.h"
 
 #include "OBJClasses/OBJ.h"
 #include "OBJClasses/Reader/MeshReader.h"
@@ -27,15 +28,15 @@
 class MyScene : public Scene{
 
 private:
+	GLFWwindow* windowThatIsInserted;
+	int width;
+	int height;
 	Configuration* configuration;
-
-	GLFWwindow* m_windowThatIsInserted;
-	
-	int m_width;
-	int m_height;
 
 	Program* program;
 	vector<OBJ* > objs;
+	
+
 
 	//-------------------------------------------------------
 	//DADOS 
@@ -43,22 +44,17 @@ private:
 	float m_deltaTime = 0.0f;
 	
 	//model matrix
-	Speed m_speed = Speed(1.0f, 0.2f);
+	Speed* speed = new Speed();
 
 	float m_posicaoAtualX = 0.0f;
 	float m_posicaoAtualY = 0.0f;
 	
-	glm::vec3 cameraPos; //camera
-	glm::vec3 cameraFront;
-	glm::vec3 cameraUp;
+	Camera* camera;
 
 	bool m_firstMouse = true;
-	float m_yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-	float m_pitch = 0.0f;
-	float m_lastX = (float)m_width / 2.0;
-	float m_lastY = (float)m_height / 2.0;
+	float m_lastX = (float)this->width / 2.0;
+	float m_lastY = (float)this->height / 2.0;
 
-	float m_fov = 45.0f;
 	//---------------------------------------------------------
 
 	//Key mapping
@@ -88,18 +84,18 @@ private:
 
 	//Funcoes:
 	void processKeyboard() {
-		float cameraSpeed = 4.0 * m_deltaTime;
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_UP) == GLFW_PRESS) {
-			cameraPos += cameraSpeed * cameraFront;
+		this->camera->calculateSpeedRate(this->m_deltaTime);
+		if (glfwGetKey(this->windowThatIsInserted, GLFW_KEY_UP) == GLFW_PRESS) {
+			this->camera->moveForward();
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_DOWN) == GLFW_PRESS) {
-			cameraPos -= cameraSpeed * cameraFront;
+		if (glfwGetKey(this->windowThatIsInserted, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			this->camera->moveBackward();
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		if (glfwGetKey(this->windowThatIsInserted, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			this->camera->moveLeft();
 		}
-		if (glfwGetKey(m_windowThatIsInserted, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		if (glfwGetKey(this->windowThatIsInserted, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			this->camera->moveRight();
 		}
 	}
 
@@ -107,7 +103,7 @@ private:
 		if (key == GLFW_KEY_ESCAPE) {
 			switch (action) {
 				case GLFW_PRESS:
-					glfwSetWindowShouldClose(m_windowThatIsInserted, true);
+					glfwSetWindowShouldClose(this->windowThatIsInserted, true);
 					
 					break;
 			}
@@ -311,8 +307,7 @@ private:
 		}
 	}
 	void processMouseMovementInput(double xpos, double ypos) override {
-		if (m_firstMouse)
-		{
+		if (m_firstMouse){
 			m_lastX = xpos;
 			m_lastY = ypos;
 			m_firstMouse = false;
@@ -323,87 +318,56 @@ private:
 		m_lastX = xpos;
 		m_lastY = ypos;
 
-		float sensitivity = 0.1f; // change this value to your liking
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
+		xoffset *= this->camera->getSensivity();
+		yoffset *= this->camera->getSensivity();
 
-		m_yaw += xoffset;
-		m_pitch += yoffset;
+		this->camera->calculateYawAngle(xoffset);
+		this->camera->calculatePitchAngle(yoffset);
 
-		// make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (m_pitch > 89.0f)
-			m_pitch = 89.0f;
-		if (m_pitch < -89.0f)
-			m_pitch = -89.0f;
-
-		glm::vec3 front;
-		front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-		front.y = sin(glm::radians(m_pitch));
-		front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-		cameraFront = glm::normalize(front);
+		this->camera->rotate();
 	}
 	void processMouseZoomInput(double xoffset, double yoffset) override {
-		if (m_fov >= 1.0f && m_fov <= 45.0f) {
-			m_fov -= yoffset;
-		}
-		if (m_fov <= 1.0f) {
-			m_fov = 1.0f;
-		}
-		if (m_fov >= 45.0f) {
-			m_fov = 45.0f;
-		}
-		glm::mat4 projectionMatrix(1.0f);
-		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
+		this->camera->calculateFOV(yoffset);
+
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), static_cast<float>(this->width) / static_cast<float>(this->height), 0.1f, 100.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 	void processFrameBufferSize(int width, int height) override {
-		m_width = width;
-		m_height = height;
-		glm::mat4 projectionMatrix(1.0f);
-		projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(m_width) / static_cast<float>(m_height), 0.1f, 100.0f);
+		this->width = width;
+		this->height = height;
+
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), static_cast<float>(this->width) / static_cast<float>(this->height), 0.1f, 100.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 
 public:
 	//CONSTRUTORES
 	MyScene(){}
-	MyScene(int width, int height, Configuration* configuration) : m_width(width), m_height(height), configuration(configuration) {
-		this->cameraPos = this->configuration->getCameraPos();
-		this->cameraFront = this->configuration->getCameraFront();
-		this->cameraUp = this->configuration->getCameraUp();
-
+	MyScene(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
 		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
-		for (int i = 0; i < this->configuration->numberOfData(); i++) {
+		for (int i = 0; i < this->configuration->getNumberOfData(); i++) {
 			std::stringstream ss;
 			ss << "res/obj/" << this->configuration->getOBJDataAt(i)->getFilepath();
 			std::string pathfile = ss.str();
-			OBJ* obj = new OBJ(meshReader->loadMesh(pathfile), program);
-			obj->setPosition(this->configuration->getOBJDataAt(i)->getPosition());
-			obj->setRotation(this->configuration->getOBJDataAt(i)->getRotation());
-			obj->setScale(this->configuration->getOBJDataAt(i)->getScale());
+			OBJ* obj = new OBJ(meshReader->read(pathfile), this->configuration->getOBJDataAt(i), program);
 			objs.push_back(obj);
 		}
 
-		//---------------------------------------------------------------------------------------
-		//PASSAGEM DAS MATRIZES
-		//Passagem da view matrix
-		glm::mat4 viewMatrix(1.0f);
-		viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		program->sendMat4fv("viewMatrix", viewMatrix);
 
 		//Passagem da projection matrix
-		glm::mat4 projectionMatrix(1.0f);
-		projectionMatrix = glm::perspective(glm::radians(m_fov), (float)m_width / (float)m_height, 0.1f, 100.0f);
-		program->sendMat4fv("projectionMatrix", projectionMatrix);
-		//---------------------------------------------------------------------------------------
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), (float)this->width / (float)this->height, 0.1f, 100.0f);;
+		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 
 	void update() override {
 		glClearColor(0.5f, 0.5f, 1, 0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//Passagem da view matrix
+		this->program->sendMat4fv("viewMatrix", this->camera->generateViewMatrix());
 
 		for (int i = 0; i < objs.size(); i++) {
 			objs.at(i)->draw();
@@ -414,51 +378,17 @@ public:
 		float currentFrame = glfwGetTime();
 		m_deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
-
-		//Normal normal;
-		//if ((m_rightPosition + m_posicaoAtualX) >= 1.0f) {
-		//	normal.x = -1;
-		//	normal.y = 0;
-		//	LightReflection(normal, m_speed);
-		//}
-		//else if ((m_leftPosition + m_posicaoAtualX) <= -1.0f) {
-		//	normal.x = 1;
-		//	normal.y = 0;
-		//	LightReflection(normal, m_speed);
-		//}
-		//if ((m_topPosition + m_posicaoAtualY) >= 1.0f) {
-		//	normal.x = 0;
-		//	normal.y = -1;
-		//	LightReflection(normal, m_speed);
-		//}
-		//else if ((m_bottomPosition + m_posicaoAtualY) <= -1.0f) {
-		//	normal.x = 0;
-		//	normal.y = -1;
-		//	LightReflection(normal, m_speed);
-		//}
-
-		//std::cout << "Posicao Atual X: " << m_posicaoAtualX << std::endl;
-		//std::cout << "Posicao Atual Y: " << m_posicaoAtualY << std::endl;
-		//std::cout << "Width: " << m_width << " Height: " << m_height << std::endl;
-		//std::cout << "------------------------------------------------" << std::endl;
-		////-------------------------------------------------------------------------------
-
-		//glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(m_deltaTime * m_speed.x + m_posicaoAtualX, m_deltaTime * m_speed.y + m_posicaoAtualY, 0.0f));
-		//program->sendMat4fv("modelMatrix", modelMatrix);
-		//m_posicaoAtualX = glm::value_ptr(modelMatrix)[12];
-		//m_posicaoAtualY = glm::value_ptr(modelMatrix)[13];
-
-		glm::mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		program->sendMat4fv("viewMatrix", viewMatrix);
 	}
 
-	//setters
-	inline void setWindow(GLFWwindow* window) {
-		m_windowThatIsInserted = window;
-	}
 
 
 	~MyScene() {}
+
+
+
+	//GETTERS
+
+	//SETTERS
+	void setWindow(GLFWwindow* window) { this->windowThatIsInserted = window; }
 };
 

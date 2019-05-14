@@ -5,84 +5,43 @@
 
 #include "Mesh.h"
 #include "../Program.h"
+#include "../OBJData.h"
 
 class OBJ {
 private:
-	Mesh* m_mesh = nullptr;
+	Mesh* mesh = nullptr;
 	Program* program = nullptr;
 
-	glm::vec3 position;
-	glm::vec3 rotation;
-	glm::vec3 scale;
+
 
 	glm::mat4 modelMatrix;
-
 	glm::vec3 color = glm::vec3(1.f, 0.f, 0.f);
-
-	bool selected;
-
-	void calculateModelMatrix() {
-		this->modelMatrix = glm::mat4(1.f);
-		this->modelMatrix = glm::translate(this->modelMatrix, this->position);
-		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		this->modelMatrix = glm::scale(this->modelMatrix, this->scale);
-	}
-	//functions
-	void initModelMatrix() {
-		
-		this->position = glm::vec3(0.f, 0.f, 0.f);
-		this->rotation = glm::vec3(0.f);
-		this->scale = glm::vec3(1.f);
-
-		calculateModelMatrix();
-	}
-
-	void addColor() {
-		this->m_mesh->applyColor();
-	}
-
-	void removeColor() {
-		this->m_mesh->disapplyColor();
-	}
 	
+	bool selected;
+	//PRIVATE FUNCTIONS
+	void addColor() {
+		this->mesh->applyColor();
+	}
+	void removeColor() {
+		this->mesh->disapplyColor();
+	}
 public:
 
-	OBJ(Mesh* mesh, Program* program) {
-		this->m_mesh = mesh;
-		this->m_mesh->setObjThatIsInserted(this);
-
-		this->program = program;
+	OBJ(Mesh* mesh, OBJData* objData, Program* program): mesh(mesh), program(program) {
+		this->mesh->setObjThatIsInserted(this);
 		this->selected = false;
 
-
-		initModelMatrix();
+		this->modelMatrix = glm::translate(glm::mat4(1.f), objData->getPosition());
+		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(objData->getRotation().x), glm::vec3(1.f, 0.f, 0.f));
+		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(objData->getRotation().y), glm::vec3(0.f, 1.f, 0.f));
+		this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(objData->getRotation().z), glm::vec3(0.f, 0.f, 1.f));
+		this->modelMatrix = glm::scale(this->modelMatrix, objData->getScale());
 	}
 
-	void setMesh(Mesh* mesh) {
-		m_mesh = mesh;
-	}
-	Mesh* getMesh() {
-		return m_mesh;
-	}
-
-	void setPosition(glm::vec3 position) {
-		this->position = position;
-
-		calculateModelMatrix();
-	}
-
-	void setRotation(glm::vec3 rotation) {
-		this->rotation = rotation;
-
-		calculateModelMatrix();
-	}
-
-	void setScale(glm::vec3 scale) {
-		this->scale = scale;
-
-		calculateModelMatrix();
+	void draw() {
+		this->program->sendMat4fv("modelMatrix", this->modelMatrix);
+		this->program->sendVec3fv("color", this->color);
+		this->mesh->draw(this->program);
 	}
 
 	void translateXpositive() {
@@ -121,45 +80,33 @@ public:
 	}
 
 
-	bool isSelected() {
-		return selected;
-	}
 
 	void unselect() {
 		if (isSelected()) {
-			this->removeColor();
+			removeColor();
 			this->selected = false;
 		}
-	}
-
-	glm::mat4 getModelMatrix() {
-		return modelMatrix;
-	}
-
-	GLint getFirstTextureUnit() {
-		return m_mesh->getFirstTextureUnit();
-	}
-
-	int getFirstTypeDraw() {
-		return m_mesh->getFirstTypeDraw();
 	}
 
 	void changeSelection() {
-		if (this->selected) {
-			this->removeColor();
+		if (isSelected()) {
+			removeColor();
 			this->selected = false;
 		}
 		else {
-			this->addColor();
+			addColor();
 			this->selected = true;
 		}
 	}
 
-	
 
-	void draw() {
-		program->sendMat4fv("modelMatrix", this->modelMatrix);
-		program->sendVec3fv("color", this->color);
-		m_mesh->draw(this->program);
-	}
+
+	~OBJ(){}
+
+
+
+	//GETTERS
+	inline bool isSelected() { return this->selected; }
+
+	//SETTERS
 };

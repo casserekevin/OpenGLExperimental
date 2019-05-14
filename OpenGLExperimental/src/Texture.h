@@ -5,22 +5,18 @@
 
 #include <iostream>
 
-class Texture{
+class Texture {
 private:
 	GLuint textureID;
-	int width;
-	int height;
-	unsigned int type;
+	GLenum type;
 	GLint textureUnit;
 
 public:
-
-	Texture(const char* fileNameTexture, GLenum type, GLint texture_unit) {
-		this->type = type;
-		this->textureUnit = texture_unit;
-
+	Texture(const char* pathfile, GLenum type, GLint textureUnit) : type(type), textureUnit(textureUnit) {
 		//Carrega imagem
-		unsigned char* data_image = SOIL_load_image(fileNameTexture, &this->width, &this->height, nullptr, SOIL_LOAD_RGBA);
+		int width;
+		int height;
+		unsigned char* dataImage = SOIL_load_image(pathfile, &width, &height, nullptr, SOIL_LOAD_RGBA);
 
 		//Gera textura
 		glGenTextures(1, &this->textureID);
@@ -33,20 +29,17 @@ public:
 		glTexParameteri(this->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //Filtro usado quando o objeto diminuir de tamanho
 
 		// Se a imagem carregou corretamente
-		if (data_image) {
-			glTexImage2D(this->type, 0, GL_RGBA, this->width, this->width, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_image);
+		if (dataImage) {
+			glTexImage2D(this->type, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dataImage);
 			glGenerateMipmap(this->type);
 		}
 		else {
 			std::cout << "ERROR::TEXTURE::TEXTURE_LOADING_FAILED" << std::endl;
 		}
 		unbind();
-		SOIL_free_image_data(data_image);
+		SOIL_free_image_data(dataImage);
 	}
 
-	~Texture() {
-		glDeleteTextures(1, &this->textureID);
-	}
 
 
 	void bind() {
@@ -59,7 +52,15 @@ public:
 		glBindTexture(this->type, 0);
 	}
 
-	inline GLuint getTextureID() const{ return this->textureID; }
-	
-	inline GLint getTextureUnit() const{ return this->textureUnit; }
+
+
+	~Texture() {
+		glDeleteTextures(1, &this->textureID);
+	}
+
+
+
+	//GETTERS
+	inline GLuint getTextureID() const { return this->textureID; }
+	inline GLint getTextureUnit() const { return this->textureUnit; }
 };

@@ -9,53 +9,55 @@
 
 #include "Scene.h"
 
-class Window{
+class Window {
 private:
-	int m_width;
-	int m_height;
+	int width;
+	int height;
 
-	GLFWwindow* m_Window;
+	GLFWwindow* window;
 	//Declaração de um smart pointer(ponteiro único: garante que apenas um ponteiro apontará para o objeto Scene) começando com null
-	std::unique_ptr<Scene> m_scene = nullptr;
+	std::unique_ptr<Scene> scene = nullptr;
 
 	//Inline callbacks
 	inline static void errorCallback(int error, const char* description) {
 		std::cerr << "Erro " << error << ": " << description << std::endl;
 	}
 	inline static void frameBufferSizeCallback(GLFWwindow* win, int width, int height) {
-		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 		window->frameBufferSize(width, height);
 	}
 	void frameBufferSize(int w, int h) {
 		glViewport(0, 0, w, h);
-		m_scene->processFrameBufferSize(w, h);
+		this->scene->processFrameBufferSize(w, h);
 	}
 	inline static void mouseMovementCallback(GLFWwindow* win, double xpos, double ypos) {
-		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 		window->mouseMovement(xpos, ypos);
 	}
 	void mouseMovement(double xpos, double ypos) {
-		m_scene->processMouseMovementInput(xpos, ypos);
+		this->scene->processMouseMovementInput(xpos, ypos);
 	}
 	inline static void mouseZoomCallback(GLFWwindow* win, double xoffset, double yoffset) {
-		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 		window->mouseZoom(xoffset, yoffset);
 	}
 	void mouseZoom(double xoffset, double yoffset) {
-		m_scene->processMouseZoomInput(xoffset, yoffset);
+		this->scene->processMouseZoomInput(xoffset, yoffset);
 	}
 	inline static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mods) {
-		Window *window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 		window->keyboard(key, scancode, action, mods);
 	}
 	void keyboard(int key, int scancode, int action, int mods) {
-		m_scene->processKeyboardInput(key, scancode, action, mods);
+		this->scene->processKeyboardInput(key, scancode, action, mods);
 	}
 
 
 
 public:
-	Window(int width = 800, int height = 600, const char* title = "") : m_width(width), m_height(height) {
+
+	//CONSTRUCTOR
+	Window(int width = 800, int height = 600, const char* title = "") : width(width), height(height) {
 		// Inicializa a biblioteca GLFW
 		if (!glfwInit()) {
 			std::cerr << "Erro ao inicializar GLFW" << std::endl;
@@ -68,14 +70,14 @@ public:
 		glfwWindowHint(GLFW_OPENGL_COMPAT_PROFILE, GL_FALSE);
 
 		//Cria a janela
-		m_Window = glfwCreateWindow(width, height, title, NULL, NULL);
-		if (!m_Window) {
+		this->window = glfwCreateWindow(width, height, title, NULL, NULL);
+		if (!this->window) {
 			std::cerr << "Erro ao criar janela" << std::endl;
 			return;
 		}
 
 		//Tornar o contexto atual
-		glfwMakeContextCurrent(m_Window);
+		glfwMakeContextCurrent(this->window);
 		glewExperimental = GL_TRUE;
 		//Inicializa a biblioteca GLEW
 		GLenum glewInitErr = glewInit();
@@ -100,54 +102,49 @@ public:
 		//glCullFace(GL_BACK);
 
 		//Necessário para glfwGetUserPointer() funcionar
-		glfwSetWindowUserPointer(m_Window, this);
+		glfwSetWindowUserPointer(this->window, this);
 
-		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		//Callbacks:
 		//Error callback
 		glfwSetErrorCallback(Window::errorCallback);
 		//Resize Window callback
-		glfwSetFramebufferSizeCallback(m_Window, frameBufferSizeCallback);
+		glfwSetFramebufferSizeCallback(this->window, frameBufferSizeCallback);
 		//Mouse movement callback
-		glfwSetCursorPosCallback(m_Window, mouseMovementCallback);
+		glfwSetCursorPosCallback(this->window, mouseMovementCallback);
 		//Mouse scroll callback
-		glfwSetScrollCallback(m_Window, mouseZoomCallback);
+		glfwSetScrollCallback(this->window, mouseZoomCallback);
 		//Keyboard callback
-		glfwSetKeyCallback(m_Window, keyboardCallback);
-	}
-	
-	//getters
-	inline GLFWwindow* getWindow() {
-		return m_Window;
-	}
-	inline int getWidth() {
-		return m_width;
-	}
-	inline int getHeight() {
-		return m_height;
-	}
-	
-	//setters
-	inline void setScene(std::unique_ptr<Scene> scene) {
-		m_scene = std::move(scene);
-		m_scene->setWindow(m_Window);
+		glfwSetKeyCallback(this->window, keyboardCallback);
 	}
 
 	void update() {
-		m_scene->processKeyboard();
+		this->scene->processKeyboard();
 		glfwPollEvents();
 
-		if (m_scene) {
-			m_scene->update();
+		if (this->scene) {
+			this->scene->update();
 		}
 
-		glfwSwapBuffers(m_Window);
+		glfwSwapBuffers(this->window);
 	}
 
+
+
 	~Window() {
-		glfwDestroyWindow(m_Window);
+		glfwDestroyWindow(this->window);
 		glfwTerminate();
 	}
+
+
+
+	//getters
+	inline GLFWwindow* getWindow() { return this->window; }
+	inline int getWidth() { return this->width; }
+	inline int getHeight() { return this->height; }
+
+	//setters
+	void setScene(std::unique_ptr<Scene> scene) { this->scene = std::move(scene); }
 };
 

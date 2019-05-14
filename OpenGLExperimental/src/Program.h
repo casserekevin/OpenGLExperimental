@@ -5,15 +5,15 @@
 
 #include <iostream>
 
-#include "ShaderReader.h";
+#include "OBJClasses/Reader/ShaderReader.h";
 
 
 class Program {
 private:
-	unsigned int programID;
-	unsigned int vertexShaderID = 0;
-	unsigned int fragmentShaderID = 0;
-	unsigned int geometryShaderID = 0;
+	GLuint programID;
+	GLuint vertexShaderID = 0;
+	GLuint fragmentShaderID = 0;
+	GLuint geometryShaderID = 0;
 
 	std::string vertexSource;
 	std::string fragmentSource;
@@ -21,52 +21,52 @@ private:
 
 	//-----------------------------------------------
 	//constructor functions
-	void loadShadersFile(const char* vertexFilePath, const char* fragmentFilePath, const char* geometryFilePath) {
+	void loadShadersFile(const char* filepathVertex, const char* filepathFragment, const char* filepathGeometry) {
 		std::stringstream vertexSourceStream;
 		std::stringstream fragmentSourceStream;
 
-		ShaderReader* sh = new ShaderReader();
-		sh->read(vertexFilePath, vertexSourceStream);
-		sh->read(fragmentFilePath, fragmentSourceStream);
+		ShaderReader* shaderReader = new ShaderReader();
+		shaderReader->read(filepathVertex, vertexSourceStream);
+		shaderReader->read(filepathFragment, fragmentSourceStream);
 
-		vertexSource = vertexSourceStream.str();
-		fragmentSource = fragmentSourceStream.str();
+		this->vertexSource = vertexSourceStream.str();
+		this->fragmentSource = fragmentSourceStream.str();
 
 		//se o geometry shader existir
-		if (geometryFilePath != "") {
+		if (filepathGeometry != "") {
 			std::stringstream geometrySourceStream;
 
-			sh->read(geometryFilePath, geometrySourceStream);
+			shaderReader->read(filepathGeometry, geometrySourceStream);
 
-			geometrySource = geometrySourceStream.str();
+			this->geometrySource = geometrySourceStream.str();
 		}
 	}
 	void createProgram() {
-		programID = glCreateProgram();
+		this->programID = glCreateProgram();
 
 		//cria o Vertex Shader
-		vertexShaderID = this->createShader(vertexSource, GL_VERTEX_SHADER);
-		glAttachShader(programID, vertexShaderID); //linka o shader ao programa
+		this->vertexShaderID = createShader(this->vertexSource, GL_VERTEX_SHADER);
+		glAttachShader(this->programID, this->vertexShaderID); //linka o shader ao programa
 		//cria o Fragment Shader
-		fragmentShaderID = this->createShader(fragmentSource, GL_FRAGMENT_SHADER);
-		glAttachShader(programID, fragmentShaderID); //linka o shader ao programa
+		this->fragmentShaderID = createShader(this->fragmentSource, GL_FRAGMENT_SHADER);
+		glAttachShader(this->programID, this->fragmentShaderID); //linka o shader ao programa
 		//cria o Geometry Shader
-		if (geometrySource != "") {
-			geometryShaderID = this->createShader(geometrySource, GL_GEOMETRY_SHADER);
-			glAttachShader(programID, geometryShaderID); //linka o shader ao programa
+		if (this->geometrySource != "") {
+			this->geometryShaderID = createShader(this->geometrySource, GL_GEOMETRY_SHADER);
+			glAttachShader(this->programID, this->geometryShaderID); //linka o shader ao programa
 		}
 
 		//linka o program
-		glLinkProgram(programID);
-		this->verifyProgramLink(programID); //verifica erros na linkagem do programa
+		glLinkProgram(this->programID);
+		verifyProgramLink(this->programID); //verifica erros na linkagem do programa
 
 		glUseProgram(0);
 	}
 	void deleteShaders() {
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(fragmentShaderID);
-		if (geometryShaderID != 0) {
-			glDeleteShader(fragmentShaderID);
+		glDeleteShader(this->vertexShaderID);
+		glDeleteShader(this->fragmentShaderID);
+		if (this->geometryShaderID != 0) {
+			glDeleteShader(this->geometryShaderID);
 		}
 	}
 	//-----------------------------------------------
@@ -74,20 +74,18 @@ private:
 
 	//-----------------------------------------------
 	//auxiliar functions
-	unsigned int createShader(std::string shaderSource, unsigned int type) {
-		const char* buff;
+	GLuint createShader(std::string shaderSource, GLenum type) {
+		const char* buff = shaderSource.c_str();
 
-		buff = shaderSource.c_str();
-
-		unsigned int shaderID = glCreateShader(type);
+		GLuint shaderID = glCreateShader(type);
 		glShaderSource(shaderID, 1, &buff, NULL);
 		glCompileShader(shaderID);
-		this->verifyShaderCompilation(shaderID);
+		verifyShaderCompilation(shaderID);
 
 		return shaderID;
 	}
-	
-	int verifyShaderCompilation(unsigned int shaderID) {
+
+	int verifyShaderCompilation(GLuint shaderID) {
 		int result;
 
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &result);
@@ -116,7 +114,7 @@ private:
 
 		return result;
 	}
-	int verifyProgramLink(unsigned int programID) {
+	int verifyProgramLink(GLuint programID) {
 		int result;
 
 		glGetProgramiv(programID, GL_LINK_STATUS, &result);
@@ -136,23 +134,10 @@ private:
 
 public:
 
-	Program(const char* vertexFilePath, const char* fragmentFilePath, const char* geometryFilePath = "") {
-		this->loadShadersFile(vertexFilePath, fragmentFilePath, geometryFilePath);
+	Program(const char* filepathVertex, const char* filepathFragment, const char* filepathGeometry = "") {
+		this->loadShadersFile(filepathVertex, filepathFragment, filepathGeometry);
 		this->createProgram();
 		this->deleteShaders();
-	}
-
-	~Program() {
-		glDeleteProgram(this->programID);
-	}
-
-	void use() {
-		//usa o program
-		glUseProgram(this->programID);
-	}
-
-	void unuse() {
-		glUseProgram(0);
 	}
 
 	//send methods
@@ -190,5 +175,21 @@ public:
 		this->use();
 		glUniformMatrix4fv(glGetUniformLocation(this->programID, name), 1, transpose, glm::value_ptr(value));
 		this->unuse();
+	}
+
+
+
+	void use() {
+		glUseProgram(this->programID);
+	}
+
+	void unuse() {
+		glUseProgram(0);
+	}
+
+
+
+	~Program() {
+		glDeleteProgram(this->programID);
 	}
 };
