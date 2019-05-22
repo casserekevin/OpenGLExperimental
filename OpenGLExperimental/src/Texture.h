@@ -3,20 +3,25 @@
 #include <GLEW/glew.h>
 #include <SOIL2/SOIL2.h>
 
+#include <string>
 #include <iostream>
+
+#include "Util/StringUtil.h"
 
 class Texture {
 private:
+	const std::string TEXTURE_DEFAULT_FILEPATH = "res/textures/";
+
 	GLuint textureID;
 	GLenum type;
 	GLint textureUnit;
 
 public:
-	Texture(const char* pathfile, GLenum type, GLint textureUnit) : type(type), textureUnit(textureUnit) {
+	Texture(std::string pathfile, GLenum type, GLint textureUnit) : type(type), textureUnit(textureUnit) {
 		//Carrega imagem
 		int width;
 		int height;
-		unsigned char* dataImage = SOIL_load_image(pathfile, &width, &height, nullptr, SOIL_LOAD_RGBA);
+		unsigned char* dataImage = SOIL_load_image(StringUtil::concatenarString(this->TEXTURE_DEFAULT_FILEPATH, pathfile).c_str(), &width, &height, nullptr, SOIL_LOAD_RGBA);
 
 		//Gera textura
 		glGenTextures(1, &this->textureID);

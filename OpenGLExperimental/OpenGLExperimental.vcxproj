@@ -157,12 +157,14 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Configuration.h" />
     <ClInclude Include="src\LightFunction.h" />
+    <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Normal.h" />
     <ClInclude Include="src\OBJClasses\Face.h" />
     <ClInclude Include="src\OBJClasses\Group.h" />
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />
     <ClInclude Include="src\OBJClasses\Reader\ConfigurationReader.h" />
+    <ClInclude Include="src\OBJClasses\Reader\MaterialReader.h" />
     <ClInclude Include="src\OBJClasses\Reader\MeshReader.h" />
     <ClInclude Include="src\OBJData.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
@@ -172,6 +174,7 @@
     <ClInclude Include="src\OBJClasses\Reader\ShaderReader.h" />
     <ClInclude Include="src\Speed.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Util\StringUtil.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>

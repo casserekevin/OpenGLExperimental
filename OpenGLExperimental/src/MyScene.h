@@ -344,17 +344,16 @@ public:
 	//CONSTRUTORES
 	MyScene(){}
 	MyScene(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
-		program = new Program("res/shaders/vertex.shader", "res/shaders/fragment.shader");
+		program = new Program("vertex.shader", "fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
 		for (int i = 0; i < this->configuration->getNumberOfData(); i++) {
-			std::stringstream ss;
-			ss << "res/obj/" << this->configuration->getOBJDataAt(i)->getFilepath();
-			std::string pathfile = ss.str();
-			OBJ* obj = new OBJ(meshReader->read(pathfile), this->configuration->getOBJDataAt(i), program);
+			OBJ* obj = new OBJ(meshReader->read(this->configuration->getOBJDataAt(i)->getFilepath()), this->configuration->getOBJDataAt(i), program);
 			objs.push_back(obj);
 		}
 
+		//LIGHT
+		this->program->sendVec3fv("lightPos", glm::vec3(0.0f, 0.0f, 5.0f));
 
 		//Passagem da projection matrix
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), (float)this->width / (float)this->height, 0.1f, 100.0f);;
@@ -368,6 +367,7 @@ public:
 
 		//Passagem da view matrix
 		this->program->sendMat4fv("viewMatrix", this->camera->generateViewMatrix());
+		this->program->sendVec3fv("cameraPos", this->camera->getPosition());
 
 		for (int i = 0; i < objs.size(); i++) {
 			objs.at(i)->draw();

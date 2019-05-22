@@ -1,19 +1,23 @@
 #pragma once
 
+#include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
 
+#include "../../Util/StringUtil.h"
+
 class ShaderReader {
 private:
+	const std::string SHADER_DEFAULT_FILEPATH = "res/shaders/";
 
 public:
 	ShaderReader() {}
 
-	bool read(const char* filepath, std::stringstream& result) {
+	bool read(std::string filepath, std::stringstream& result) {
 		{
 			try {
-				std::ifstream file(filepath);
+				std::ifstream file(StringUtil::concatenarString(this->SHADER_DEFAULT_FILEPATH, filepath));
 				file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 				result << file.rdbuf();
@@ -22,7 +26,7 @@ public:
 				return true;
 			}
 			catch (std::exception e) {
-				std::cerr << "[ERRO] - " << filepath << ": " << e.what() << std::endl;
+				std::cerr << "[ERRO] - SHADER_READER - " << filepath << ": " << e.what() << std::endl;
 				return false;
 			}
 		}

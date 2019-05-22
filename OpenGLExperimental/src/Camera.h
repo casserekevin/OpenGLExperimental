@@ -99,6 +99,7 @@ public:
 
 
 	//GETTERS
+	inline glm::vec3 getPosition() { return this->position; }
 	inline float getFOV() { return this->fov; }
 	inline float getSensivity() { return this->sensivity; }
 

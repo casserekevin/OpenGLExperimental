@@ -73,6 +73,7 @@ public:
 
 
 	//GETTERS
+	inline int getSizeOfGroups() { return this->groups.size(); }
 	inline vector<Group*> getGroups() { return this->groups; }
 	inline Group* getLastGroup() { return this->groups.at(this->groups.size() - 1); }
 	

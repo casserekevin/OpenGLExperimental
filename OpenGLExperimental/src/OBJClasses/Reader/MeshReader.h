@@ -6,16 +6,23 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <map>
 
+#include "../../Util/StringUtil.h"
+
+#include "MaterialReader.h"
 #include "../OBJ.h"
 #include "../Mesh.h"
+#include "../../Material.h"
 
 using std::string;
 class MeshReader {
 private:
+	const std::string OBJ_DEFAULT_FILEPATH = "res/obj/";
 
-	std::vector<std::string> split(const std::string& s, char delimiter)
-	{
+	std::map<std::string, Material* >* materials;
+
+	std::vector<std::string> split(const std::string& s, char delimiter){
 		std::vector<std::string> tokens;
 		std::string token;
 		std::istringstream tokenStream(s);
@@ -30,10 +37,15 @@ public:
 	MeshReader(){}
 
 	Mesh* read(string filepath) {
+		bool gFirst = false;
+		bool usemtlFirst = false;
+
+
+		Mesh* mesh = new Mesh();	
+		Group* grupo = nullptr;
 		try {
-			Mesh* mesh = new Mesh();
-			
-			std::ifstream file(filepath);
+
+			std::ifstream file(StringUtil::concatenarString(this->OBJ_DEFAULT_FILEPATH, filepath));
 			file.exceptions(std::ifstream::badbit);
 
 			while (!file.eof()){
@@ -45,7 +57,13 @@ public:
 				string command;
 				ss_line >> command;
 				
-				if (command == "v") {
+				if (command == "mtllib") {
+					std::string fileMTL;
+					ss_line >> fileMTL;
+
+					this->materials = MaterialReader().read(fileMTL);
+				}
+				else if (command == "v") {
 					float x, y, z;
 					ss_line >> x >> y >> z;
 
@@ -64,12 +82,34 @@ public:
 					mesh->addNormal(x, y, z);
 				}
 				else if (command == "g") {
-					string filepathTexture;
-					ss_line >> filepathTexture;
-
-					Group* grupo = new Group(mesh);
-					grupo->setFilepathTexture(filepathTexture);
-					mesh->addGroup(grupo);
+					std::string groupName;
+					ss_line >> groupName;
+					if ((gFirst == false && usemtlFirst == false) || gFirst == true) {
+						if (gFirst == false && usemtlFirst == false) {
+							gFirst = true;
+						}
+						grupo = new Group(mesh);
+						grupo->setGroupName(groupName);
+						mesh->addGroup(grupo);
+					}
+					else {
+						grupo->setGroupName(groupName);
+					}
+				}
+				else if (command == "usemtl") {
+					std::string materialName;
+					ss_line >> materialName;
+					if ((gFirst == false && usemtlFirst == false) || usemtlFirst == true) {
+						if (gFirst == false && usemtlFirst == false) {
+							usemtlFirst = true;
+						}
+						grupo = new Group(mesh);
+						grupo->setMaterial(materials->find(materialName)->second);
+						mesh->addGroup(grupo);
+					}
+					else {
+						grupo->setMaterial(materials->find(materialName)->second);
+					}
 				}
 				else if (command == "f") {
 					std::string content;
@@ -236,7 +276,7 @@ public:
 			return mesh;
 		}
 		catch (std::exception e) {
-			std::cerr << "[ERRO] - " << filepath << ": " << e.what() << std::endl;
+			std::cerr << "[ERRO] - MESH_READER - " << filepath << ": " << e.what() << std::endl;
 			return nullptr;
 		}
 	}

@@ -7,6 +7,8 @@
 
 #include "OBJClasses/Reader/ShaderReader.h";
 
+#include "Material.h"
+
 
 class Program {
 private:
@@ -147,6 +149,12 @@ public:
 		this->unuse();
 	}
 
+	void send1f(const GLchar* name, GLfloat value) {
+		this->use();
+		glUniform1f(glGetUniformLocation(this->programID, name), value);
+		this->unuse();
+	}
+
 	void sendVec2fv(const GLchar* name, glm::fvec2 value) {
 		this->use();
 		glUniform2fv(glGetUniformLocation(this->programID, name), 1, glm::value_ptr(value));
@@ -175,6 +183,14 @@ public:
 		this->use();
 		glUniformMatrix4fv(glGetUniformLocation(this->programID, name), 1, transpose, glm::value_ptr(value));
 		this->unuse();
+	}
+
+	void sendMaterial(Material* material) {
+		sendVec3fv("material.Ka", material->getKa());
+		sendVec3fv("material.Kd", material->getKd());
+		sendVec3fv("material.Ks", material->getKs());
+		send1f("material.Ns", material->getNs());
+		send1i("material.texture1", material->getTexture()->getTextureUnit());
 	}
 
 

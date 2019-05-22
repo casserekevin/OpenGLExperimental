@@ -5,10 +5,13 @@
 #include <fstream>
 #include <sstream>
 
+#include "../../Util/StringUtil.h"
+
 #include "../../Configuration.h"
 
 class ConfigurationReader {
 private:
+	const std::string CFG_DEFAULT_FILEPATH = "res/cfg/";
 
 public:
 	ConfigurationReader() {}
@@ -16,8 +19,8 @@ public:
 	Configuration* read(std::string filepath) {
 		try {
 			Configuration* configuration = new Configuration();
-
-			std::ifstream file(filepath);
+			
+			std::ifstream file(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath));
 			file.exceptions(std::ifstream::badbit);
 
 			while (!file.eof()) {
@@ -59,7 +62,7 @@ public:
 			return configuration;
 		}
 		catch (std::exception e) {
-			std::cerr << "[ERRO] - " << filepath << ": " << e.what() << std::endl;
+			std::cerr << "[ERRO] - CONFIGURATION_READER" << filepath << ": " << e.what() << std::endl;
 			return nullptr;
 		}
 	}

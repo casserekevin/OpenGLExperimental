@@ -10,6 +10,7 @@
 #include "../Program.h"
 #include "../VertexBuffer.h"
 #include "../Texture.h"
+#include "../Material.h"
 
 class Mesh;
 
@@ -17,13 +18,13 @@ using std::vector;
 class Group {
 private:
 	Mesh* meshThatIsInserted;
+	std::string groupName;
 
 	vector<Face*> faces;
 
 	GLuint vaoID;
 
-	Texture* texture = nullptr;
-	std::string filepathTexture;
+	Material* material = nullptr;
 	
 	int numberOfVertices;
 	int typeDraw;
@@ -39,11 +40,10 @@ public:
 	Group(Mesh* mesh): meshThatIsInserted(mesh) {}
 	
 	void draw(Program* program) {
-		program->send1i("texture0", this->texture->getTextureUnit());
+		program->sendMaterial(material);
 		program->send1i("typeDraw", this->typeDraw);
 
-		texture->bind();
-
+		material->getTexture()->bind();
 		program->use();
 		bindVAO();
 		glDrawArrays(GL_TRIANGLES, 0, this->numberOfVertices);
@@ -80,16 +80,6 @@ public:
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		unbindVAO();
-
-		if (this->filepathTexture == "\"\"") {
-			texture = new Texture("res/textures/null.png", GL_TEXTURE_2D, 0);
-		}
-		else {
-			std::stringstream ss;
-			ss << "res/textures/" << this->filepathTexture;
-			this->filepathTexture = ss.str();
-			texture = new Texture(this->filepathTexture.c_str(), GL_TEXTURE_2D, 0);
-		}
 	}
 
 	void enableColor() {
@@ -115,5 +105,6 @@ public:
 	//GETTERS
 
 	//SETTERS
-	void setFilepathTexture(std::string filepath) { this->filepathTexture = filepath; }
+	void setGroupName(std::string groupName) { this->groupName = groupName; }
+	void setMaterial(Material* material) { this->material = material; }
 };
