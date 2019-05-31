@@ -8,6 +8,7 @@
 #include "OBJClasses/Reader/ShaderReader.h";
 
 #include "Material.h"
+#include "Light.h"
 
 
 class Program {
@@ -191,6 +192,11 @@ public:
 		sendVec3fv("material.Ks", material->getKs());
 		send1f("material.Ns", material->getNs());
 		send1i("material.texture1", material->getTexture()->getTextureUnit());
+	}
+
+	void sendLight(Light* light) {
+		sendVec3fv("light.position", light->getPosition());
+		sendVec3fv("light.color", light->getColor());
 	}
 
 

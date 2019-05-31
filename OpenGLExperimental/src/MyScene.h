@@ -353,7 +353,7 @@ public:
 		}
 
 		//LIGHT
-		this->program->sendVec3fv("lightPos", glm::vec3(0.0f, 0.0f, 5.0f));
+		this->program->sendLight(new Light(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
 
 		//Passagem da projection matrix
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), (float)this->width / (float)this->height, 0.1f, 100.0f);;

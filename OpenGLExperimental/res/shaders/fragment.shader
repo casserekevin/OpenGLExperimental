@@ -1,5 +1,11 @@
 #version 460
 
+struct Light {
+	vec3 position;
+	vec3 color;
+};
+uniform Light light;
+
 struct Material {
 	vec3 Ka;
 	vec3 Kd;
@@ -16,7 +22,6 @@ in vec3 vertexNormal;
 out vec4 fColorOut;
 
 
-uniform vec3 lightPos;
 uniform vec3 cameraPos;
 
 uniform int typeDraw;
@@ -25,20 +30,20 @@ uniform vec3 color;
 void main(){
 	if (typeDraw == 1) {
 		//ambient
-		vec3 ambientFinal = vec3(0.1f, 0.1f, 0.1f);
+		vec3 ambientFinal = material.Ka * light.color;
 
 		//diffuse
-		vec3 posToLightDirVec = normalize(lightPos - vertexPosition);
-		vec3 diffuseColor = vec3(1.0f, 1.0f, 1.0f);
+		vec3 posToLightDirVec = normalize(light.position - vertexPosition);
+		vec3 diffuseColor = light.color;
 		float diffuse = clamp(dot(posToLightDirVec, vertexNormal), 0, 1);
-		vec3 diffuseFinal = diffuseColor * diffuse;
+		vec3 diffuseFinal = material.Kd * diffuseColor * diffuse;
 
 		//specular
-		vec3 lightToPosDirVec = normalize(vertexPosition - lightPos);
+		vec3 lightToPosDirVec = normalize(vertexPosition - light.position);
 		vec3 reflectDirVec = normalize(reflect(lightToPosDirVec, normalize(vertexNormal)));
 		vec3 posToViewDirVec = normalize(cameraPos - vertexPosition);
 		float specularConstant = pow(max(dot(posToViewDirVec, reflectDirVec), 0), material.Ns);
-		vec3 specularFinal = vec3(1.0f, 1.0f, 1.0f) * specularConstant;
+		vec3 specularFinal = material.Ks * light.color * specularConstant;
 
 		//fColorOut = texture(texture0, vertexTextureCoordinate);
 		
