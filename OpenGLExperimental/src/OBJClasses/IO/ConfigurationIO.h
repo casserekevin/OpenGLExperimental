@@ -85,6 +85,7 @@ public:
 	}
 
 	void replace(std::string filepath, std::string searched_command, std::string word) {
+		bool equal = false;
 		try {
 			std::ifstream file_IN(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath), std::ifstream::in);
 			file_IN.exceptions(std::ifstream::badbit);
@@ -101,7 +102,14 @@ public:
 				ss_line >> command;
 
 				if (command == searched_command) {
-					file_OUT << searched_command << " " << word << std::endl;
+					ss_line >> command;
+					if (command == word) {
+						equal = true;
+						break;
+					}
+					else {
+						file_OUT << searched_command << " " << word << std::endl;
+					}
 				}
 				else {
 					if (!file_IN.eof()) {
@@ -114,8 +122,13 @@ public:
 			file_IN.close();
 			file_OUT.close();
 
-			remove(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath).c_str());
-			rename(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, "temp.cfg").c_str(), StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath).c_str());
+			if (equal) {
+				remove(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, "temp.cfg").c_str());
+			}
+			else {
+				remove(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath).c_str());
+				rename(StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, "temp.cfg").c_str(), StringUtil::concatenarString(this->CFG_DEFAULT_FILEPATH, filepath).c_str());
+			}
 		}
 		catch (std::exception e) {
 			std::cerr << "[ERRO] - CONFIGURATION_IO - REPLACE" << filepath << ": " << e.what() << std::endl;

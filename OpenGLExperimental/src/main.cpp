@@ -9,6 +9,7 @@
 
 int main(int argc, char** argv) {
 	ConfigurationIO* configurationIO = new ConfigurationIO();
+	configurationIO->replace("configuration.cfg", "s", "n");
 	while (true) {
 		Configuration* configuration = configurationIO->read("configuration.cfg");
 		if (configuration->getStop()) {

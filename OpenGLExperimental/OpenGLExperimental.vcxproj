@@ -188,6 +188,9 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\OBJClasses\Group.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\cfg\teste.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
