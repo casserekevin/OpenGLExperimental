@@ -14,7 +14,7 @@ private:
 	const std::string MTL_DEFAULT_FILEPATH = "res/obj/mtl/";
 
 public:
-	MaterialReader(){}
+	MaterialReader() {}
 
 
 
@@ -87,5 +87,5 @@ public:
 
 
 
-	~MaterialReader(){}
+	~MaterialReader() {}
 };

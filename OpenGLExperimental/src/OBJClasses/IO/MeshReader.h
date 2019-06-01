@@ -22,7 +22,7 @@ private:
 
 	std::map<std::string, Material* >* materials;
 
-	std::vector<std::string> split(const std::string& s, char delimiter){
+	std::vector<std::string> split(const std::string& s, char delimiter) {
 		std::vector<std::string> tokens;
 		std::string token;
 		std::istringstream tokenStream(s);
@@ -34,21 +34,21 @@ private:
 	}
 
 public:
-	MeshReader(){}
+	MeshReader() {}
 
 	Mesh* read(string filepath) {
 		bool gFirst = false;
 		bool usemtlFirst = false;
 
 
-		Mesh* mesh = new Mesh();	
+		Mesh* mesh = new Mesh();
 		Group* grupo = nullptr;
 		try {
 
 			std::ifstream file(StringUtil::concatenarString(this->OBJ_DEFAULT_FILEPATH, filepath));
 			file.exceptions(std::ifstream::badbit);
 
-			while (!file.eof()){
+			while (!file.eof()) {
 				string line;
 				std::getline(file, line);
 
@@ -56,7 +56,7 @@ public:
 
 				string command;
 				ss_line >> command;
-				
+
 				if (command == "mtllib") {
 					std::string fileMTL;
 					ss_line >> fileMTL;
@@ -214,7 +214,7 @@ public:
 							Group* group = mesh->getLastGroup();
 
 							Face* face = new Face();
-							face->addIndexPosition(std::stoi(vec_vertice1.at(0)) - 1); 
+							face->addIndexPosition(std::stoi(vec_vertice1.at(0)) - 1);
 							face->addIndexTexture(std::stoi(vec_vertice1.at(1)) - 1);
 
 							std::vector<string> vec_vertice2 = split(vertice2, '/');
@@ -267,7 +267,7 @@ public:
 							}
 						}
 					}
-					
+
 				}
 			}
 			for (Group* g : mesh->getGroups()) {

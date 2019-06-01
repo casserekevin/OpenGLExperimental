@@ -2,20 +2,31 @@
 #include <windows.h>
 
 #include "Window.h"
-#include "MyScene.h"
+#include "Render.h"
 
 #include "Configuration.h"
-#include "OBJClasses/Reader/ConfigurationReader.h"
+#include "OBJClasses/IO/ConfigurationIO.h"
 
 int main(int argc, char** argv) {
-	Configuration* configuration = ConfigurationReader().read("configuration.cfg");
+	ConfigurationIO* configurationIO = new ConfigurationIO();
+	while (true) {
+		Configuration* configuration = configurationIO->read("configuration.cfg");
+		if (configuration->getStop()) {
+			break;
+		}
+		Window* w = new Window(configuration->getWidth(), configuration->getHeigth(), "Introducao OpenGL");
+		
+		if (configuration->getRender()) {
+			w->setScene(std::unique_ptr<Scene>(new Render(w->getWindow(), w->getWidth(), w->getHeight(), configuration)));
+		}
+		else {
 
-	Window* w = new Window(configuration->getWidth(), configuration->getHeigth(), "Introducao OpenGL");
-	w->setScene(std::unique_ptr<Scene>(new MyScene(w->getWindow(), w->getWidth(), w->getHeight(), configuration)));
+		}
 
-	while (!glfwWindowShouldClose(w->getWindow()))
-	{
-		w->update();
+		while (!glfwWindowShouldClose(w->getWindow()))
+		{
+			w->update();
+		}
 	}
 	return 0;
 }

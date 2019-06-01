@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "OBJClasses/Reader/ShaderReader.h";
+#include "OBJClasses/IO/ShaderReader.h";
 
 #include "Material.h"
 #include "Light.h"

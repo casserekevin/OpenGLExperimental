@@ -22,10 +22,11 @@
 #include "Camera.h"
 
 #include "OBJClasses/OBJ.h"
-#include "OBJClasses/Reader/MeshReader.h"
+#include "OBJClasses/IO/MeshReader.h"
+#include "OBJClasses/IO/ConfigurationIO.h"
 
 
-class MyScene : public Scene{
+class Render : public Scene{
 
 private:
 	GLFWwindow* windowThatIsInserted;
@@ -104,7 +105,9 @@ private:
 			switch (action) {
 				case GLFW_PRESS:
 					glfwSetWindowShouldClose(this->windowThatIsInserted, true);
-					
+					ConfigurationIO* configurationIO = new ConfigurationIO();
+					configurationIO->replace("configuration.cfg", "s", "y");
+
 					break;
 			}
 		}
@@ -342,8 +345,8 @@ private:
 
 public:
 	//CONSTRUTORES
-	MyScene(){}
-	MyScene(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
+	Render(){}
+	Render(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
 		program = new Program("vertex.shader", "fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
@@ -382,7 +385,7 @@ public:
 
 
 
-	~MyScene() {}
+	~Render() {}
 
 
 

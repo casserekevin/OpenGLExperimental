@@ -9,6 +9,9 @@
 
 class Configuration {
 private:
+	bool stop;
+	bool render;
+
 	int width;
 	int height;
 
@@ -18,6 +21,24 @@ private:
 
 public:
 	Configuration() {}
+
+	void addStop(std::string stop) {
+		if (stop == "y") {
+			this->stop = true;
+		}
+		else if (stop == "n") {
+			this->stop = false;
+		}
+	}
+
+	void addRender(std::string render) {
+		if (render == "y") {
+			this->render = true;
+		}
+		else if (render == "n") {
+			this->render = false;
+		}
+	}
 
 	void addViewport(int width, int height) {
 		this->width = width;
@@ -39,6 +60,8 @@ public:
 
 
 	//GETTERS
+	inline bool getStop() { return this->stop; }
+	inline bool getRender() { return this->render; }
 	inline int getWidth() { return this->width; }
 	inline int getHeigth() { return this->height; }
 	inline Camera* getCamera() { return this->camera; }

@@ -1,10 +1,11 @@
-#include <map>
 #include <string>
 
-#include "../src/Material.h"
+#include "../src/OBJClasses/IO/ConfigurationIO.h"
 
 int main() {
-	std::map<std::string, Material> materials;
+	ConfigurationIO* configurationIO = new ConfigurationIO();
+	configurationIO->replace("teste.txt", "s", "y");
+
 
 	return 0;
 }
