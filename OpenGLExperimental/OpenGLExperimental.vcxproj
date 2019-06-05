@@ -154,8 +154,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\BSpline.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Configuration.h" />
+    <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\Light.h" />
     <ClInclude Include="src\LightFunction.h" />
     <ClInclude Include="src\Material.h" />
@@ -181,8 +183,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\cfg\configuration.cfg" />
-    <None Include="res\shaders\fragment.shader" />
-    <None Include="res\shaders\vertex.shader" />
+    <None Include="res\shaders\editor\fragment.shader" />
+    <None Include="res\shaders\editor\vertex.shader" />
+    <None Include="res\shaders\render\fragment.shader" />
+    <None Include="res\shaders\render\vertex.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />

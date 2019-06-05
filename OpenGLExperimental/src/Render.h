@@ -10,8 +10,9 @@
 #include <math.h>
 #include <vector>
 
-#include "Program.h"
 #include "Scene.h"
+
+#include "Program.h"
 #include "OpenGLErrors.h"
 #include "Normal.h"
 #include "Speed.h"
@@ -99,7 +100,6 @@ private:
 			this->camera->moveRight();
 		}
 	}
-
 	void processKeyboardInput(int key, int scancode, int action, int mods) override {
 		if (key == GLFW_KEY_ESCAPE) {
 			switch (action) {
@@ -335,6 +335,7 @@ private:
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), static_cast<float>(this->width) / static_cast<float>(this->height), 0.1f, 100.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
+	void processMouseClickInput(int button, int action, int mods) override{}
 	void processFrameBufferSize(int width, int height) override {
 		this->width = width;
 		this->height = height;
@@ -347,7 +348,7 @@ public:
 	//CONSTRUTORES
 	Render(){}
 	Render(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
-		program = new Program("vertex.shader", "fragment.shader");
+		program = new Program("render/vertex.shader", "render/fragment.shader");
 
 		MeshReader* meshReader = new MeshReader();
 		for (int i = 0; i < this->configuration->getNumberOfData(); i++) {
@@ -391,7 +392,5 @@ public:
 
 	//GETTERS
 
-	//SETTERS
-	void setWindow(GLFWwindow* window) { this->windowThatIsInserted = window; }
 };
 

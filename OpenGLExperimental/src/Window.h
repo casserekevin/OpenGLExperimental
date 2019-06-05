@@ -14,6 +14,8 @@ private:
 	int width;
 	int height;
 
+	const char* title;
+
 	GLFWwindow* window;
 	//Declaração de um smart pointer(ponteiro único: garante que apenas um ponteiro apontará para o objeto Scene) começando com null
 	std::unique_ptr<Scene> scene = nullptr;
@@ -44,6 +46,13 @@ private:
 	void mouseZoom(double xoffset, double yoffset) {
 		this->scene->processMouseZoomInput(xoffset, yoffset);
 	}
+	inline static void mouseClickCallback(GLFWwindow* win, int button, int action, int mods) {
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		window->mouseClick(button, action, mods);
+	}
+	void mouseClick(int button, int action, int mods) {
+		this->scene->processMouseClickInput(button, action, mods);
+	}
 	inline static void keyboardCallback(GLFWwindow* win, int key, int scancode, int action, int mods) {
 		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 		window->keyboard(key, scancode, action, mods);
@@ -57,7 +66,13 @@ private:
 public:
 
 	//CONSTRUCTOR
-	Window(int width = 800, int height = 600, const char* title = "") : width(width), height(height) {
+	Window(bool render) {
+		if (render == true) {
+			this->title = "Renderizador";
+		}
+		else {
+			this->title = "Editor";
+		}
 		// Inicializa a biblioteca GLFW
 		if (!glfwInit()) {
 			std::cerr << "Erro ao inicializar GLFW" << std::endl;
@@ -70,11 +85,32 @@ public:
 		glfwWindowHint(GLFW_OPENGL_COMPAT_PROFILE, GL_FALSE);
 
 		//Cria a janela
-		this->window = glfwCreateWindow(width, height, title, NULL, NULL);
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+		glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+
+		int monitorX, monitorY;
+		glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+		//porcentagem do tamanho da tela
+		int porcentagem = 90;
+
+		this->width = mode->width * porcentagem / 100;
+		this->height = mode->height * porcentagem / 100;
+
+		this->window = glfwCreateWindow(this->width, this->height, this->title, NULL, NULL);
 		if (!this->window) {
 			std::cerr << "Erro ao criar janela" << std::endl;
 			return;
 		}
+
+		//centralizando window
+		glfwSetWindowPos(window, monitorX + (mode->width - this->width) / 2, monitorY + (mode->height - this->height) / 2);
+
 
 		//Tornar o contexto atual
 		glfwMakeContextCurrent(this->window);
@@ -93,18 +129,25 @@ public:
 		std::cout << "OpenGL (Versao suportada): " << version << std::endl;
 
 		//habilita o corte de faces; corta as faces de tras; define quais são as faces frontais
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glEnable(GL_DEPTH_TEST);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glFrontFace(GL_CW);
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		if (render == true) {
+			glEnable(GL_TEXTURE_2D);
+			glEnable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glFrontFace(GL_CW);
+			//glEnable(GL_CULL_FACE);
+			//glCullFace(GL_BACK);
+		}
 
 		//Necessário para glfwGetUserPointer() funcionar
 		glfwSetWindowUserPointer(this->window, this);
 
-		glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		if (render == true) {
+			glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else {
+			glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
 
 		//Callbacks:
 		//Error callback
@@ -115,8 +158,11 @@ public:
 		glfwSetCursorPosCallback(this->window, mouseMovementCallback);
 		//Mouse scroll callback
 		glfwSetScrollCallback(this->window, mouseZoomCallback);
+		//Mouse click callback
+		glfwSetMouseButtonCallback(this->window, mouseClickCallback);
 		//Keyboard callback
 		glfwSetKeyCallback(this->window, keyboardCallback);
+
 	}
 
 	void update() {
