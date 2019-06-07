@@ -9,6 +9,7 @@
 #include "Face.h"
 #include "../Program.h"
 #include "../VertexBuffer.h"
+#include "../VertexArray.h"
 #include "../Texture.h"
 #include "../Material.h"
 
@@ -22,10 +23,10 @@ private:
 
 	vector<Face*> faces;
 
-	GLuint vaoID;
-
 	Material* material = nullptr;
 	
+	VertexArray* vertexArray;
+
 	int numberOfVertices;
 	int typeDraw;
 
@@ -45,9 +46,9 @@ public:
 
 		material->getTexture()->bind();
 		program->use();
-		bindVAO();
+		this->vertexArray->bind();
 		glDrawArrays(GL_TRIANGLES, 0, this->numberOfVertices);
-		unbindVAO();
+		this->vertexArray->unbind();
 	}
 
 
@@ -59,8 +60,8 @@ public:
 	
 	
 	void createVAOandTexture() {
-		glGenVertexArrays(1, &this->vaoID);
-		glBindVertexArray(this->vaoID);
+		this->vertexArray = new VertexArray();
+		this->vertexArray->bind();
 
 		vector<glm::vec3> vec_positions = generatePositionData();
 		VertexBuffer* vbo_position = new VertexBuffer(vec_positions.size() * sizeof(glm::vec3), vec_positions.data());
@@ -79,7 +80,7 @@ public:
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-		unbindVAO();
+		this->vertexArray->unbind();
 	}
 
 	void enableColor() {
@@ -87,13 +88,6 @@ public:
 	}
 	void disableColor() {
 		this->typeDraw = typeDraw - 1;
-	}
-
-	void bindVAO() {
-		glBindVertexArray(this->vaoID);
-	}
-	void unbindVAO() {
-		glBindVertexArray(0);
 	}
 
 

@@ -83,11 +83,11 @@ public:
 	Editor(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration) {
 		this->program = new Program("editor/vertex.shader", "editor/fragment.shader");
 	
+		this->bSpline = new BSpline(this->program, this->width, this->height);
+
 		//Passagem da projection matrix
 		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height);
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
-	
-		this->bSpline = new BSpline(this->program, this->width, this->height);
 	}
 
 	void update() override{

@@ -11,7 +11,14 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 	}
 
+	VertexBuffer() {
+		glGenBuffers(1, &this->vertexBufferID);
+	}
 
+	void update(unsigned int size, const void* data) {
+		glBindBuffer(GL_ARRAY_BUFFER, this->vertexBufferID);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	}
 
 	void Bind() {
 		glBindBuffer(GL_ARRAY_BUFFER, this->vertexBufferID);

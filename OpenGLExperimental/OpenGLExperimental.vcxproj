@@ -178,6 +178,7 @@
     <ClInclude Include="src\Speed.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\Util\StringUtil.h" />
+    <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>

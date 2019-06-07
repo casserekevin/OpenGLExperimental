@@ -7,7 +7,7 @@
 
 #include "Program.h"
 #include "VertexBuffer.h"
-
+#include "VertexArray.h"
 
 class BSpline {
 private:
@@ -19,17 +19,13 @@ private:
 	std::vector<glm::vec3> ctrlPoints;
 	std::vector<glm::vec3> calculatedPoints;
 
-	GLuint vaoCtrlPointsID;
-	GLuint vaoCalculatedPointsID;
+	VertexArray* vaoControlPoints;
+	VertexBuffer* vboControlPoints;
+
+	VertexArray* vaoCalculatedPoints;
+	VertexBuffer* vboCalculatedPoints;
 
 	bool stop = false;
-	
-	void bindVao(GLuint vao) {
-		glBindVertexArray(vao);
-	}
-	void unbindVAO() {
-		glBindVertexArray(0);
-	}
 
 	float B0(float t) {
 		return (-1 * pow(t, 3) + 3 * pow(t, 2) - 3 * t + 1);
@@ -53,7 +49,26 @@ private:
 
 public:
 	BSpline(Program* program, int width, int height): program(program), widthWindow(width), heightWindow(height) {
-		generateCtrlPointsVAO();
+		//VAO pontos de controle
+		this->vaoControlPoints = new VertexArray();
+		this->vaoControlPoints->bind();
+
+		this->vboControlPoints = new VertexBuffer(this->ctrlPoints.size() * sizeof(glm::vec3), this->ctrlPoints.data());
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+		this->vaoControlPoints->unbind();
+
+
+		//VAO pontos calculados
+		this->vaoCalculatedPoints = new VertexArray();
+		this->vaoCalculatedPoints->bind();
+
+		this->vboCalculatedPoints = new VertexBuffer(this->calculatedPoints.size() * sizeof(glm::vec3), this->calculatedPoints.data());
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+		this->vaoCalculatedPoints->unbind();
 	}
 
 
@@ -64,36 +79,35 @@ public:
 	}
 	void drawCtrlPoints() {
 		program->sendVec3fv("color", glm::vec3(1.0f, 0.0f, 0.0f));
-
 		program->use();
 		
-		bindVao(this->vaoCtrlPointsID);
+		this->vaoControlPoints->bind();
 		if (stop) {
 			glDrawArrays(GL_LINE_LOOP, 0, this->ctrlPoints.size());
 		}
 		else {
 			glDrawArrays(GL_LINE_STRIP, 0, this->ctrlPoints.size());
 		}
-		unbindVAO();
+		this->vaoControlPoints->unbind();
+
 
 		program->sendVec3fv("color", glm::vec3(1.0f, 1.0f, 0.0f));
-
 		program->use();
 
 		glPointSize(5);
-		bindVao(this->vaoCtrlPointsID);
+		this->vaoControlPoints->bind();
 		glDrawArrays(GL_POINTS, 0, this->ctrlPoints.size());
-		unbindVAO();
+		this->vaoControlPoints->unbind();
 	}
 	void drawCalculatedPoints() {
-		program->sendVec3fv("color", glm::vec3(1.0f, 1.0f, 1.0f));
+			program->sendVec3fv("color", glm::vec3(1.0f, 1.0f, 1.0f));
+			program->use();
 
-		program->use();
-
-		glPointSize(2);
-		bindVao(this->vaoCalculatedPointsID);
-		glDrawArrays(GL_POINTS, 0, this->calculatedPoints.size());
-		unbindVAO();
+			glPointSize(1);
+			this->vaoCalculatedPoints->bind();
+			glDrawArrays(GL_POINTS, 0, this->calculatedPoints.size());
+			this->vaoCalculatedPoints->unbind();
+	
 	}
 
 
@@ -101,14 +115,14 @@ public:
 		if (this->stop == false) {
 			if (closeToFirstPoint(x, y)) {
 				calculatePoints(true);
-				generateCalculatedPointsVAO();
+				updateCalculatedPoints();
 			}
 			else {
 				this->ctrlPoints.push_back(glm::vec3(x, y, z));
-				generateCtrlPointsVAO();
+				updateControlPoints();
 
 				calculatePoints(false);
-				generateCalculatedPointsVAO();
+				updateCalculatedPoints();
 			}
 		}
 	}
@@ -131,25 +145,11 @@ public:
 
 
 
-	void generateCtrlPointsVAO() {
-		glGenVertexArrays(1, &this->vaoCtrlPointsID);
-		glBindVertexArray(this->vaoCtrlPointsID);
-
-		VertexBuffer* vertexbuffer = new VertexBuffer(ctrlPoints.size() * sizeof(glm::vec3), ctrlPoints.data());
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		unbindVAO();
+	void updateControlPoints() {
+		this->vboControlPoints->update(this->ctrlPoints.size() * sizeof(glm::vec3), this->ctrlPoints.data());
 	}
-	void generateCalculatedPointsVAO() {
-		glGenVertexArrays(1, &this->vaoCalculatedPointsID);
-		glBindVertexArray(this->vaoCalculatedPointsID);
-
-		VertexBuffer* vertexbuffer = new VertexBuffer(calculatedPoints.size() * sizeof(glm::vec3), calculatedPoints.data());
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		unbindVAO();
+	void updateCalculatedPoints() {
+		this->vboCalculatedPoints->update(this->calculatedPoints.size() * sizeof(glm::vec3), this->calculatedPoints.data());
 	}
 
 	void calculatePoints(bool closed) {
@@ -177,6 +177,8 @@ public:
 					for (float t = 0.0f; t < 1.0f; t += 0.01f) {
 						glm::vec3 P = calculatePoint(P0, P1, P2, P3, t);
 						this->calculatedPoints.push_back(P);
+						
+						
 					}
 				}
 			}

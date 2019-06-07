@@ -27,6 +27,7 @@
     <ClInclude Include="src\OBJClasses\IO\ShaderReader.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\BSpline.h" />
+    <ClInclude Include="src\VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\cfg\configuration.cfg" />
