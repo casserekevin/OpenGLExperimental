@@ -28,6 +28,8 @@
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\BSpline.h" />
     <ClInclude Include="src\VertexArray.h" />
+    <ClInclude Include="src\PointsManager.h" />
+    <ClInclude Include="src\Point.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\cfg\configuration.cfg" />

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Program.h"
+#include "PointsManager.h"
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 
@@ -16,15 +17,14 @@ private:
 
 	Program* program;
 
-	std::vector<glm::vec3> ctrlPoints;
-	std::vector<glm::vec3> calculatedPoints;
+	PointsManager* pointsManager;
 
-	VertexArray* vaoControlPoints;
-	VertexBuffer* vboControlPoints;
+	//default values
+	const int MAX_HEIGHT = 20;
+	const int TICK_HEIGHT = 20;
+	const double RATE_HEIGHT = MAX_HEIGHT / TICK_HEIGHT;
 
-	VertexArray* vaoCalculatedPoints;
-	VertexBuffer* vboCalculatedPoints;
-
+	//flags
 	bool stop = false;
 
 	float B0(float t) {
@@ -40,37 +40,17 @@ private:
 		return (1 * pow(t, 3) + 0 * pow(t, 2) + 0 * t + 0);
 	}
 
-	glm::vec3 calculatePoint(glm::vec3 P0, glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, float t) {
-		float x = ((B0(t)*P0.x + B1(t)*P1.x + B2(t)*P2.x + B3(t)*P3.x) / 6);
-		float y = ((B0(t)*P0.y + B1(t)*P1.y + B2(t)*P2.y + B3(t)*P3.y) / 6);
+	glm::vec3* calculatePosition(glm::vec3* P0, glm::vec3* P1, glm::vec3* P2, glm::vec3* P3, float t) {
+		float x = ((B0(t)*P0->x + B1(t)*P1->x + B2(t)*P2->x + B3(t)*P3->x) / 6);
+		float y = ((B0(t)*P0->y + B1(t)*P1->y + B2(t)*P2->y + B3(t)*P3->y) / 6);
 
-		return glm::vec3(x, y, 0.0f);
+		return new glm::vec3(x, y, 0.0f);
 	}
 
 public:
 	BSpline(Program* program, int width, int height): program(program), widthWindow(width), heightWindow(height) {
-		//VAO pontos de controle
-		this->vaoControlPoints = new VertexArray();
-		this->vaoControlPoints->bind();
-
-		this->vboControlPoints = new VertexBuffer(this->ctrlPoints.size() * sizeof(glm::vec3), this->ctrlPoints.data());
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		this->vaoControlPoints->unbind();
-
-
-		//VAO pontos calculados
-		this->vaoCalculatedPoints = new VertexArray();
-		this->vaoCalculatedPoints->bind();
-
-		this->vboCalculatedPoints = new VertexBuffer(this->calculatedPoints.size() * sizeof(glm::vec3), this->calculatedPoints.data());
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-		this->vaoCalculatedPoints->unbind();
+		this->pointsManager = new PointsManager();
 	}
-
 
 
 	void draw() {
@@ -78,64 +58,61 @@ public:
 		drawCalculatedPoints();
 	}
 	void drawCtrlPoints() {
-		program->sendVec3fv("color", glm::vec3(1.0f, 0.0f, 0.0f));
 		program->use();
 		
-		this->vaoControlPoints->bind();
+		this->pointsManager->getVaoControlPoints()->bind();
 		if (stop) {
-			glDrawArrays(GL_LINE_LOOP, 0, this->ctrlPoints.size());
+			glDrawArrays(GL_LINE_LOOP, 0, this->pointsManager->getSizeControlPoints());
 		}
 		else {
-			glDrawArrays(GL_LINE_STRIP, 0, this->ctrlPoints.size());
+			glDrawArrays(GL_LINE_STRIP, 0, this->pointsManager->getSizeControlPoints());
 		}
-		this->vaoControlPoints->unbind();
+		this->pointsManager->getVaoControlPoints()->unbind();
 
 
-		program->sendVec3fv("color", glm::vec3(1.0f, 1.0f, 0.0f));
 		program->use();
 
 		glPointSize(5);
-		this->vaoControlPoints->bind();
-		glDrawArrays(GL_POINTS, 0, this->ctrlPoints.size());
-		this->vaoControlPoints->unbind();
+		this->pointsManager->getVaoControlPoints()->bind();
+		glDrawArrays(GL_POINTS, 0, this->pointsManager->getSizeControlPoints());
+		this->pointsManager->getVaoControlPoints()->unbind();
 	}
 	void drawCalculatedPoints() {
-			program->sendVec3fv("color", glm::vec3(1.0f, 1.0f, 1.0f));
-			program->use();
+		program->use();
 
-			glPointSize(1);
-			this->vaoCalculatedPoints->bind();
-			glDrawArrays(GL_POINTS, 0, this->calculatedPoints.size());
-			this->vaoCalculatedPoints->unbind();
+		glPointSize(1);
+		this->pointsManager->getVaoCalculatedPoints()->bind();
+		glDrawArrays(GL_POINTS, 0, this->pointsManager->getSizeCalculatedPoints());
+		this->pointsManager->getVaoCalculatedPoints()->unbind();
 	
 	}
 
-
-	void addCtrlPoints(float x, float y, float z) {
+	//entryPoint ClickMouse
+	void clickMouseProcess(float x, float y) {
 		if (this->stop == false) {
 			if (closeToFirstPoint(x, y)) {
 				calculatePoints(true);
-				updateCalculatedPoints();
+				this->pointsManager->updateVbosCalculatedPoints();
 			}
 			else {
-				this->ctrlPoints.push_back(glm::vec3(x, y, z));
-				updateControlPoints();
+				this->pointsManager->addControlPoint(new glm::vec3(x, y, 0.0f), new glm::vec3(1.0f, 1.0f, 1.0f));
+				this->pointsManager->updateVbosControlPoints();
 
 				calculatePoints(false);
-				updateCalculatedPoints();
+				this->pointsManager->updateVbosCalculatedPoints();
 			}
 		}
 	}
 
 	bool closeToFirstPoint(float x, float y) {
-		if (this->ctrlPoints.size() >= 4) {
+		if (this->pointsManager->getSizeControlPoints() >= 4) {
 			int porcentagem = 2;
 			
 			int widthPixel = this->widthWindow * porcentagem / 100;
 			int heightPixel = this->heightWindow * porcentagem / 100;
 
-			glm::vec3 P = ctrlPoints.at(0);
-			if (((x >= P.x - widthPixel) && (x <= P.x + widthPixel)) && ((y >= P.y - heightPixel) && (y <= P.y + heightPixel))) {
+			glm::vec3* P = this->pointsManager->getFirstPositionControlPoints();
+			if (((x >= P->x - widthPixel) && (x <= P->x + widthPixel)) && ((y >= P->y - heightPixel) && (y <= P->y + heightPixel))) {
 				this->stop = true;
 				return true;
 			}
@@ -143,40 +120,31 @@ public:
 		return false;
 	}
 
-
-
-	void updateControlPoints() {
-		this->vboControlPoints->update(this->ctrlPoints.size() * sizeof(glm::vec3), this->ctrlPoints.data());
-	}
-	void updateCalculatedPoints() {
-		this->vboCalculatedPoints->update(this->calculatedPoints.size() * sizeof(glm::vec3), this->calculatedPoints.data());
-	}
-
 	void calculatePoints(bool closed) {
-		if (this->ctrlPoints.size() >= 4) {
+		if (this->pointsManager->getSizeControlPoints() >= 4) {
 			if (closed) {
-				for (int i = 0; i < ctrlPoints.size(); i++) {
-					glm::vec3 P0 = ctrlPoints.at(i);
-					glm::vec3 P1 = ctrlPoints.at((i + 1) % ctrlPoints.size());
-					glm::vec3 P2 = ctrlPoints.at((i + 2) % ctrlPoints.size());
-					glm::vec3 P3 = ctrlPoints.at((i + 3) % ctrlPoints.size());
+				for (int i = 0; i < this->pointsManager->getSizeControlPoints(); i++) {
+					glm::vec3* P0 = this->pointsManager->getPositionControlPointAt(i);
+					glm::vec3* P1 = this->pointsManager->getPositionControlPointAt((i + 1) % this->pointsManager->getSizeControlPoints());
+					glm::vec3* P2 = this->pointsManager->getPositionControlPointAt((i + 2) % this->pointsManager->getSizeControlPoints());
+					glm::vec3* P3 = this->pointsManager->getPositionControlPointAt((i + 3) % this->pointsManager->getSizeControlPoints());
 
 					for (float t = 0.0f; t < 1.0f; t += 0.01f) {
-						glm::vec3 P = calculatePoint(P0, P1, P2, P3, t);
-						this->calculatedPoints.push_back(P);
+						glm::vec3* P = calculatePosition(P0, P1, P2, P3, t);
+						this->pointsManager->addCalculatedPoint(P, new glm::vec3(1.0f, 1.0f, 1.0f));
 					}
 				}
 			}
 			else {
-				for (int i = 0; i < ctrlPoints.size() - 3; i++) {
-					glm::vec3 P0 = ctrlPoints.at(i);
-					glm::vec3 P1 = ctrlPoints.at(i + 1);
-					glm::vec3 P2 = ctrlPoints.at(i + 2);
-					glm::vec3 P3 = ctrlPoints.at(i + 3);
+				for (int i = 0; i < this->pointsManager->getSizeControlPoints() - 3; i++) {
+					glm::vec3* P0 = this->pointsManager->getPositionControlPointAt(i);
+					glm::vec3* P1 = this->pointsManager->getPositionControlPointAt(i + 1);
+					glm::vec3* P2 = this->pointsManager->getPositionControlPointAt(i + 2);
+					glm::vec3* P3 = this->pointsManager->getPositionControlPointAt(i + 3);
 
 					for (float t = 0.0f; t < 1.0f; t += 0.01f) {
-						glm::vec3 P = calculatePoint(P0, P1, P2, P3, t);
-						this->calculatedPoints.push_back(P);
+						glm::vec3* P = calculatePosition(P0, P1, P2, P3, t);
+						this->pointsManager->addCalculatedPoint(P, new glm::vec3(1.0f, 1.0f, 1.0f));
 						
 						
 					}
@@ -186,7 +154,44 @@ public:
 		}
 	}
 
+	//entryPoint Scroll Mouse
+	void scrollMouseProcess(float x, float y, double yoffset) {
+		bool scroll_mouse_baixo = (yoffset == -1) ? true : false;
 
+		vector<Point*> points = searchControlPointsAroundMouse(x, y);
+
+		for (int i = 0; i < points.size(); i++) {
+			changeHeightPoint(points.at(i), scroll_mouse_baixo);
+		}
+		this->pointsManager->updateVbosControlPoints();
+	}
+
+	vector<Point*> searchControlPointsAroundMouse(float x, float y) {
+		vector<Point*> points;
+		for (int i = 0; i < this->pointsManager->getSizeControlPoints(); i++) {
+			Point* point = this->pointsManager->getControlPointAt(i);
+			if (isPointAroundMouse(x, y, point)) {
+				points.push_back(point);
+			}
+		}
+		return points;
+	}
+
+	bool isPointAroundMouse(float x, float y, Point* point) {
+		int porcentagem = 2;
+
+		int widthPixel = this->widthWindow * porcentagem / 100;
+		int heightPixel = this->heightWindow * porcentagem / 100;
+
+		if (((point->getPosition()->x >= x - widthPixel) && (point->getPosition()->x <= x + widthPixel)) && ((point->getPosition()->y >= y - heightPixel) && (point->getPosition()->y <= y + heightPixel))) {
+			return true;
+		}
+		return false;
+	}
+
+	void changeHeightPoint(Point* point, bool scroll_mouse_baixo) {
+		(scroll_mouse_baixo) ? point->increaseHeight(RATE_HEIGHT, MAX_HEIGHT, true) : point->decreaseHeight(RATE_HEIGHT, MAX_HEIGHT, true);
+	}
 
 	//GETTERS
 

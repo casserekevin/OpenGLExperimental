@@ -172,6 +172,8 @@
     <ClInclude Include="src\OBJClasses\IO\ConfigurationIO.h" />
     <ClInclude Include="src\OBJData.h" />
     <ClInclude Include="src\OpenGLErrors.h" />
+    <ClInclude Include="src\Point.h" />
+    <ClInclude Include="src\PointsManager.h" />
     <ClInclude Include="src\Render.h" />
     <ClInclude Include="src\Program.h" />
     <ClInclude Include="src\Scene.h" />
