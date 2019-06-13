@@ -83,7 +83,7 @@ private:
 		this->bSpline->setWidth(this->width);
 		this->bSpline->setHeight(this->height);
 
-		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -20.0f);
+		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -21.0f);
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 
@@ -95,12 +95,12 @@ public:
 		this->bSpline = new BSpline(this->program, this->width, this->height);
 
 		//Passagem da projection matrix
-		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -20.0f);
+		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -21.0f);
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 
 	void update() override{
-		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

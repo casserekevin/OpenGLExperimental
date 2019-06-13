@@ -25,7 +25,7 @@ private:
 	const double RATE_HEIGHT = MAX_HEIGHT / TICK_HEIGHT;
 
 	//flags
-	bool stop = false;
+	bool stop_clicks = false;
 
 	float B0(float t) {
 		return (-1 * pow(t, 3) + 3 * pow(t, 2) - 3 * t + 1);
@@ -47,6 +47,14 @@ private:
 		return new glm::vec3(x, y, 0.0f);
 	}
 
+	glm::vec3* recalculatePosition(glm::vec3* P0, glm::vec3* P1, glm::vec3* P2, glm::vec3* P3, float t) {
+		float x = ((B0(t)*P0->x + B1(t)*P1->x + B2(t)*P2->x + B3(t)*P3->x) / 6);
+		float y = ((B0(t)*P0->y + B1(t)*P1->y + B2(t)*P2->y + B3(t)*P3->y) / 6);
+		float z = ((B0(t)*P0->z + B1(t)*P1->z + B2(t)*P2->z + B3(t)*P3->z) / 6);
+
+		return new glm::vec3(x, y, z);
+	}
+
 public:
 	BSpline(Program* program, int width, int height): program(program), widthWindow(width), heightWindow(height) {
 		this->pointsManager = new PointsManager();
@@ -61,7 +69,7 @@ public:
 		program->use();
 		
 		this->pointsManager->getVaoControlPoints()->bind();
-		if (stop) {
+		if (stop_clicks) {
 			glDrawArrays(GL_LINE_LOOP, 0, this->pointsManager->getSizeControlPoints());
 		}
 		else {
@@ -80,7 +88,7 @@ public:
 	void drawCalculatedPoints() {
 		program->use();
 
-		glPointSize(1);
+		glPointSize(2);
 		this->pointsManager->getVaoCalculatedPoints()->bind();
 		glDrawArrays(GL_POINTS, 0, this->pointsManager->getSizeCalculatedPoints());
 		this->pointsManager->getVaoCalculatedPoints()->unbind();
@@ -89,7 +97,7 @@ public:
 
 	//entryPoint ClickMouse
 	void clickMouseProcess(float x, float y) {
-		if (this->stop == false) {
+		if (this->stop_clicks == false) {
 			if (closeToFirstPoint(x, y)) {
 				calculatePoints(true);
 				this->pointsManager->updateVbosCalculatedPoints();
@@ -113,7 +121,7 @@ public:
 
 			glm::vec3* P = this->pointsManager->getFirstPositionControlPoints();
 			if (((x >= P->x - widthPixel) && (x <= P->x + widthPixel)) && ((y >= P->y - heightPixel) && (y <= P->y + heightPixel))) {
-				this->stop = true;
+				this->stop_clicks = true;
 				return true;
 			}
 		}
@@ -131,6 +139,7 @@ public:
 
 					for (float t = 0.0f; t < 1.0f; t += 0.01f) {
 						glm::vec3* P = calculatePosition(P0, P1, P2, P3, t);
+						
 						this->pointsManager->addCalculatedPoint(P, new glm::vec3(1.0f, 1.0f, 1.0f));
 					}
 				}
@@ -154,16 +163,46 @@ public:
 		}
 	}
 
+	void recalculatePoints() {
+		for (int i = 0; i < this->pointsManager->getSizeControlPoints(); i++) {
+			glm::vec3* P0 = this->pointsManager->getPositionControlPointAt(i);
+			glm::vec3* P1 = this->pointsManager->getPositionControlPointAt((i + 1) % this->pointsManager->getSizeControlPoints());
+			glm::vec3* P2 = this->pointsManager->getPositionControlPointAt((i + 2) % this->pointsManager->getSizeControlPoints());
+			glm::vec3* P3 = this->pointsManager->getPositionControlPointAt((i + 3) % this->pointsManager->getSizeControlPoints());
+
+			for (float t = 0.0f; t < 1.0f; t += 0.01f) {
+				glm::vec3* P = recalculatePosition(P0, P1, P2, P3, t);
+				glm::vec3* C = calculateColor(P);
+				this->pointsManager->addCalculatedPoint(P, C);
+			}
+		}
+	}
+
+	glm::vec3* calculateColor(glm::vec3* position) {
+		if (position->z <= 0) {
+			return new glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		else {
+			double porcentagem = position->z / MAX_HEIGHT;
+			return new glm::vec3(1.0f, 1.0f - porcentagem, 1.0f - porcentagem);
+		}
+	}
+
 	//entryPoint Scroll Mouse
 	void scrollMouseProcess(float x, float y, double yoffset) {
-		bool scroll_mouse_baixo = (yoffset == -1) ? true : false;
+		if (stop_clicks) {
+			bool scroll_mouse_baixo = (yoffset == -1) ? true : false;
 
-		vector<Point*> points = searchControlPointsAroundMouse(x, y);
+			vector<Point*> points = searchControlPointsAroundMouse(x, y);
 
-		for (int i = 0; i < points.size(); i++) {
-			changeHeightPoint(points.at(i), scroll_mouse_baixo);
+			for (int i = 0; i < points.size(); i++) {
+				changeHeightPoint(points.at(i), scroll_mouse_baixo);
+			}
+			this->pointsManager->eraseAllCalculatedPoints();
+			recalculatePoints();
+			this->pointsManager->updateVbosControlPoints();
+			this->pointsManager->updateVbosCalculatedPoints();
 		}
-		this->pointsManager->updateVbosControlPoints();
 	}
 
 	vector<Point*> searchControlPointsAroundMouse(float x, float y) {

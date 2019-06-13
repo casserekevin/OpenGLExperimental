@@ -85,6 +85,12 @@ public:
 		this->calculatedPoints.push_back(new Point(position, color));
 	}
 
+	void eraseAllCalculatedPoints() {
+		this->positionCalculatedPoints.clear();
+		this->colorCalculatedPoints.clear();
+		this->calculatedPoints.clear();
+	}
+
 
 
 	~PointsManager(){}

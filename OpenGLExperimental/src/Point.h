@@ -23,11 +23,11 @@ public:
 			double qtdVezes = maxHeight / rate;
 			double porcentagem = 1 / qtdVezes;
 
-			this->color->x -= porcentagem;
 			this->color->y -= porcentagem;
-			if (this->color->x < 0 && this->color->y < 0) {
-				this->color->x = 0;
+			this->color->z -= porcentagem;
+			if (this->color->y < 0 && this->color->z < 0) {
 				this->color->y = 0;
+				this->color->z = 0;
 			}
 		}
 	}
@@ -42,11 +42,11 @@ public:
 			double qtdVezes = maxHeight / rate;
 			double porcentagem = 1 / qtdVezes;
 
-			this->color->x += porcentagem;
 			this->color->y += porcentagem;
-			if (this->color->x > 1 && this->color->y > 1) {
-				this->color->x = 1;
+			this->color->z += porcentagem;
+			if (this->color->y > 1 && this->color->z > 1) {
 				this->color->y = 1;
+				this->color->z = 1;
 			}
 		}
 	}
