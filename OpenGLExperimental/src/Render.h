@@ -23,7 +23,7 @@
 #include "Camera.h"
 
 #include "OBJClasses/OBJ.h"
-#include "OBJClasses/IO/MeshReader.h"
+#include "OBJClasses/IO/MeshIO.h"
 #include "OBJClasses/IO/ConfigurationIO.h"
 
 
@@ -340,8 +340,12 @@ private:
 		this->width = width;
 		this->height = height;
 
-		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), static_cast<float>(this->width) / static_cast<float>(this->height), 0.1f, 100.0f);
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), static_cast<float>(this->width) / static_cast<float>(this->height), 0.1f, 2000.0f);
 		program->sendMat4fv("projectionMatrix", projectionMatrix);
+	}
+	void processCloseWindow() {
+		ConfigurationIO* configurationIO = new ConfigurationIO();
+		configurationIO->replace("configuration.cfg", "s", "y");
 	}
 
 public:
@@ -350,17 +354,17 @@ public:
 	Render(GLFWwindow* window, int width, int height, Configuration* configuration) : windowThatIsInserted(window), width(width), height(height), configuration(configuration), camera(configuration->getCamera()) {
 		program = new Program("render/vertex.shader", "render/fragment.shader");
 
-		MeshReader* meshReader = new MeshReader();
+		MeshIO* meshIO = new MeshIO();
 		for (int i = 0; i < this->configuration->getNumberOfData(); i++) {
-			OBJ* obj = new OBJ(meshReader->read(this->configuration->getOBJDataAt(i)->getFilepath()), this->configuration->getOBJDataAt(i), program);
+			OBJ* obj = new OBJ(meshIO->read(this->configuration->getOBJDataAt(i)->getFilepath()), this->configuration->getOBJDataAt(i), program);
 			objs.push_back(obj);
 		}
 
 		//LIGHT
-		this->program->sendLight(new Light(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
+		this->program->sendLight(new Light(glm::vec3((this->width / 2) + (this->width / 4), 400.0f, this->height / 2), glm::vec3(1.0f, 1.0f, 1.0f)));
 
 		//Passagem da projection matrix
-		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), (float)this->width / (float)this->height, 0.1f, 100.0f);;
+		glm::mat4 projectionMatrix = glm::perspective(glm::radians(this->camera->getFOV()), (float)this->width / (float)this->height, 0.1f, 2000.0f);;
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 

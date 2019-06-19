@@ -22,7 +22,7 @@ private:
 public:
 
 	Camera(glm::vec3 position, glm::vec3 front, glm::vec3 up) : position(position), front(front), up(up) {
-		this->yaw = -90.0f;
+		this->yaw = 90.0f;
 		this->pitch = 0.0f;
 
 		this->fov = 44.0f;
@@ -31,7 +31,7 @@ public:
 	}
 
 	void calculateSpeedRate(float deltaTime) {
-		this->speed = 4 * deltaTime;
+		this->speed = 20 * deltaTime;
 	}
 
 	void moveForward() {

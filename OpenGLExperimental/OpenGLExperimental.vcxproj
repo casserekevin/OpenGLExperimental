@@ -164,8 +164,9 @@
     <ClInclude Include="src\Normal.h" />
     <ClInclude Include="src\OBJClasses\Face.h" />
     <ClInclude Include="src\OBJClasses\Group.h" />
-    <ClInclude Include="src\OBJClasses\IO\MaterialReader.h" />
-    <ClInclude Include="src\OBJClasses\IO\MeshReader.h" />
+    <ClInclude Include="src\OBJClasses\IO\MaterialIO.h" />
+    <ClInclude Include="src\OBJClasses\IO\MeshIO.h" />
+    <ClInclude Include="src\OBJClasses\IO\RouteIO.h" />
     <ClInclude Include="src\OBJClasses\IO\ShaderReader.h" />
     <ClInclude Include="src\OBJClasses\Mesh.h" />
     <ClInclude Include="src\OBJClasses\OBJ.h" />

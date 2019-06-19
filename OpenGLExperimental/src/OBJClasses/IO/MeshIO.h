@@ -10,13 +10,13 @@
 
 #include "../../Util/StringUtil.h"
 
-#include "MaterialReader.h"
+#include "MaterialIO.h"
 #include "../OBJ.h"
 #include "../Mesh.h"
 #include "../../Material.h"
 
 using std::string;
-class MeshReader {
+class MeshIO {
 private:
 	const std::string OBJ_DEFAULT_FILEPATH = "res/obj/";
 
@@ -34,7 +34,7 @@ private:
 	}
 
 public:
-	MeshReader() {}
+	MeshIO() {}
 
 	Mesh* read(string filepath) {
 		bool gFirst = false;
@@ -61,7 +61,7 @@ public:
 					std::string fileMTL;
 					ss_line >> fileMTL;
 
-					this->materials = MaterialReader().read(fileMTL);
+					this->materials = MaterialIO().read(fileMTL);
 				}
 				else if (command == "v") {
 					float x, y, z;
@@ -276,12 +276,55 @@ public:
 			return mesh;
 		}
 		catch (std::exception e) {
-			std::cerr << "[ERRO] - MESH_READER - " << filepath << ": " << e.what() << std::endl;
+			std::cerr << "[ERRO] - MESH_IO - READ" << filepath << ": " << e.what() << std::endl;
 			return nullptr;
+		}
+	}
+
+	void write(std::vector<glm::vec3*> data) {
+		try {
+			std::string materialName = "pista.mtl";
+
+			MaterialIO* materialIO = new MaterialIO();
+			std::string materialType = materialIO->write(materialName);
+
+			std::ofstream file_OUT(StringUtil::concatenarString(this->OBJ_DEFAULT_FILEPATH, "pista.obj"), std::ifstream::out);
+			file_OUT.exceptions(std::ofstream::badbit);
+
+			file_OUT << "mtllib " << materialName << std::endl;
+
+			for (int i = 0; i < data.size(); i++) {
+				glm::vec3* vertex = data.at(i);
+				file_OUT << "v" << " " << vertex->x << " " << vertex->z << " " << vertex->y << std::endl;
+			}
+
+			file_OUT << "vt" << " " << 1.0 << " " << 1.0 << std::endl;
+			file_OUT << "vt" << " " << 0.0 << " " << 1.0 << std::endl;
+			file_OUT << "vt" << " " << 0.0 << " " << 0.0 << std::endl;
+			file_OUT << "vt" << " " << 1.0 << " " << 0.0 << std::endl;
+
+			file_OUT << "vn" << " " << 0.0 << " " << 1.0 << " " << 0.0 << std::endl;
+
+			file_OUT << "usemtl " << materialType << std::endl;
+
+			int tamanho = data.size() / 2;
+
+			for (int i = 0; i < tamanho - 1; i++) {
+				file_OUT << "f" << " " << (i + 1) << "/" << 1 << "/" << 1 << " " << (i + tamanho + 1) << "/" << 2 << "/" << 1 << " " << (i + tamanho + 1 + 1) << "/" << 3 << "/" << 1 << std::endl;
+				file_OUT << "f" << " " << (i + 1) << "/" << 1 << "/" << 1 << " " << (i + tamanho + 1 + 1) << "/" << 3 << "/" << 1 << " " << (i + 1 + 1) << "/" << 4 << "/" << 1 << std::endl;
+			}
+			
+			file_OUT << "f" << " " << (tamanho) << "/" << 1 << "/" << 1 << " " << (tamanho + tamanho) << "/" << 2 << "/" << 1 << " " << (tamanho + 1) << "/" << 3 << "/" << 1 << std::endl;
+			file_OUT << "f" << " " << (tamanho) << "/" << 1 << "/" << 1 << " " << (tamanho + 1) << "/" << 3 << "/" << 1 << " " << (1) << "/" << 4 << "/" << 1 << std::endl;
+
+			file_OUT.close();
+		}
+		catch (std::exception e) {
+			std::cerr << "[ERRO] - MESH_IO - WRITE" << ": " << e.what() << std::endl;
 		}
 	}
 
 
 
-	~MeshReader() {}
+	~MeshIO() {}
 };

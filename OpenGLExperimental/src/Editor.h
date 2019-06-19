@@ -14,6 +14,8 @@
 #include "VertexBuffer.h"
 #include "Configuration.h"
 
+#include "OBJClasses/IO/RouteIO.h"
+
 class Editor : public Scene{
 private:
 	GLFWwindow* windowThatIsInserted;
@@ -43,6 +45,12 @@ private:
 		if (key == GLFW_KEY_S) {
 			switch (action) {
 			case GLFW_PRESS:
+				RouteIO* routeIO = new RouteIO();
+				routeIO->write(this->bSpline->getRoute());
+
+				MeshIO* meshIO = new MeshIO();
+				meshIO->write(this->bSpline->getInternalExternalCurve());
+
 				ConfigurationIO* configurationIO = new ConfigurationIO();
 				configurationIO->replace("configuration.cfg", "r", "y");
 				glfwSetWindowShouldClose(this->windowThatIsInserted, true);
@@ -50,9 +58,17 @@ private:
 				break;
 			}
 		}
+
+		if (key == GLFW_KEY_G){
+			switch (action) {
+			case GLFW_PRESS:
+				this->bSpline->gButtonProcess();
+
+				break;
+			}
+		}
 	}
 	void processMouseMovementInput(double xpos, double ypos) override {}
-
 	void processMouseZoomInput(double xoffset, double yoffset) override {
 		double xpos, ypos;
 		glfwGetCursorPos(this->windowThatIsInserted, &xpos, &ypos);
@@ -83,8 +99,12 @@ private:
 		this->bSpline->setWidth(this->width);
 		this->bSpline->setHeight(this->height);
 
-		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -21.0f);
+		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -41.0f);
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
+	}
+	void processCloseWindow() {
+		ConfigurationIO* configurationIO = new ConfigurationIO();
+		configurationIO->replace("configuration.cfg", "s", "y");
 	}
 
 public:
@@ -95,7 +115,7 @@ public:
 		this->bSpline = new BSpline(this->program, this->width, this->height);
 
 		//Passagem da projection matrix
-		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -21.0f);
+		glm::mat4 projectionMatrix = glm::ortho(0.0f, (float)this->width, 0.0f, (float)this->height, 0.0f, -41.0f);
 		this->program->sendMat4fv("projectionMatrix", projectionMatrix);
 	}
 

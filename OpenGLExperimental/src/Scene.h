@@ -13,6 +13,7 @@ public:
 	virtual void processMouseZoomInput(double xoffset, double yoffset) = 0;
 	virtual void processMouseClickInput(int button, int action, int mods) = 0;
 	virtual void processFrameBufferSize(int width, int height) = 0;
+	virtual void processCloseWindow() = 0;
 
 	virtual ~Scene() {}
 };

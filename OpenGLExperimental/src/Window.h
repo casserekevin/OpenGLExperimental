@@ -60,6 +60,13 @@ private:
 	void keyboard(int key, int scancode, int action, int mods) {
 		this->scene->processKeyboardInput(key, scancode, action, mods);
 	}
+	inline static void closeWindowCallback(GLFWwindow* win) {
+		Window* window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+		window->closeWindow();
+	}
+	void closeWindow() {
+		this->scene->processCloseWindow();
+	}
 
 
 
@@ -73,16 +80,12 @@ public:
 		else {
 			this->title = "Editor";
 		}
+		
 		// Inicializa a biblioteca GLFW
 		if (!glfwInit()) {
 			std::cerr << "Erro ao inicializar GLFW" << std::endl;
 			return;
 		}
-
-		//Definicao dos atributos do contexto OpenGL
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-		glfwWindowHint(GLFW_OPENGL_COMPAT_PROFILE, GL_FALSE);
 
 		//Cria a janela
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -162,6 +165,8 @@ public:
 		glfwSetMouseButtonCallback(this->window, mouseClickCallback);
 		//Keyboard callback
 		glfwSetKeyCallback(this->window, keyboardCallback);
+		//Window Close callback
+		glfwSetWindowCloseCallback(this->window, closeWindowCallback);
 
 	}
 

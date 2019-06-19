@@ -46,6 +46,7 @@ public:
 	}
 
 	void addCamera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp) {
+		//glm::vec3 cameraPos = glm::vec3(this->width / 2, 200, this->height / 2);
 		this->camera = new Camera(cameraPosition, cameraFront, cameraUp);
 	}
 
